@@ -25,8 +25,11 @@ const Hero = () => {
           <Button 
             size="lg"
             className="bg-primary hover:bg-primary/90 shadow-glow transition-all duration-300 text-lg px-8 py-6"
+            asChild
           >
-            Add to Discord →
+            <a href="https://discord.com/oauth2/authorize?client_id=1181178429010354176&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
+              Add to Discord →
+            </a>
           </Button>
           <Button 
             variant="outline" 

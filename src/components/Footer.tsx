@@ -12,8 +12,11 @@ const Footer = () => {
           <Button 
             size="lg"
             className="bg-primary hover:bg-primary/90 shadow-glow transition-all duration-300 text-lg px-8 py-6"
+            asChild
           >
-            Add Ryzen V1 to Discord →
+            <a href="https://discord.com/oauth2/authorize?client_id=1181178429010354176&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
+              Add Ryzen V1 to Discord →
+            </a>
           </Button>
         </div>
         
