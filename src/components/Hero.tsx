@@ -1,14 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useCountUp } from "@/hooks/useCountUp";
+import { useBotStats } from "@/hooks/useBotStats";
 
 const Hero = () => {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation<HTMLDivElement>();
   const { ref: statsRef, isVisible: statsVisible } = useScrollAnimation<HTMLDivElement>();
+  const { stats, loading } = useBotStats();
   
-  const serversCount = useCountUp(80, 2000, statsVisible);
-  const usersCount = useCountUp(8000, 2500, statsVisible);
-  const uptimeCount = useCountUp(99.9, 2000, statsVisible);
+  const serversCount = useCountUp(stats.servers || 0, 2000, statsVisible);
+  const usersCount = useCountUp(stats.users || 0, 2500, statsVisible);
+  const uptimeCount = useCountUp(stats.uptime || 0, 2000, statsVisible);
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-hero-gradient relative overflow-hidden px-4 sm:px-6 pt-20">
@@ -69,19 +71,19 @@ const Hero = () => {
         >
           <div className="text-center group">
             <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-2 font-space glow group-hover:scale-110 transition-transform duration-300">
-              {serversCount}+
+              {loading ? '...' : `${serversCount.toLocaleString()}+`}
             </div>
             <div className="text-text-muted font-medium text-sm sm:text-base">Active Servers</div>
           </div>
           <div className="text-center group">
             <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-2 font-space glow group-hover:scale-110 transition-transform duration-300">
-              {usersCount >= 8000 ? '8k+' : Math.floor(usersCount / 1000) + 'k+'}
+              {loading ? '...' : (usersCount >= 1000 ? `${Math.floor(usersCount / 1000)}k+` : `${usersCount}+`)}
             </div>
             <div className="text-text-muted font-medium text-sm sm:text-base">Users</div>
           </div>
           <div className="text-center group">
             <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary mb-2 font-space glow group-hover:scale-110 transition-transform duration-300">
-              {uptimeCount.toFixed(1)}%
+              {loading ? '...' : `${uptimeCount}%`}
             </div>
             <div className="text-text-muted font-medium text-sm sm:text-base">Uptime</div>
           </div>
