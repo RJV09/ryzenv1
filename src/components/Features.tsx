@@ -41,16 +41,16 @@ const Features = () => {
   return (
     <section id="features" className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 bg-background">
       <div className="container mx-auto max-w-7xl">
-        <div className={`text-center mb-12 sm:mb-16 ${featuresVisible ? 'animate-fade-in' : 'opacity-0'}`} ref={featuresRef}>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold font-space mb-4 sm:mb-6 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+        <div className={`text-center mb-8 sm:mb-12 lg:mb-16 px-4 ${featuresVisible ? 'animate-fade-in' : 'opacity-0'}`} ref={featuresRef}>
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold font-space mb-3 sm:mb-4 lg:mb-6 text-gradient">
             Powerful Features
           </h2>
-          <p className="text-lg sm:text-xl lg:text-2xl text-text-muted max-w-3xl mx-auto leading-relaxed font-inter">
+          <p className="text-base xs:text-lg sm:text-xl lg:text-2xl text-text-muted max-w-4xl mx-auto leading-relaxed font-inter">
             Everything you need to create an engaging, well-moderated, and fun Discord community.
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 px-4">
           {features.map((feature, index) => (
             <Card 
               key={index} 
@@ -65,7 +65,7 @@ const Features = () => {
                   <feature.icon className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors duration-300" />
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
                 </div>
-                <CardTitle className="text-xl sm:text-2xl text-foreground font-space group-hover:text-shimmer transition-all duration-500">
+                <CardTitle className="text-lg xs:text-xl sm:text-2xl text-foreground font-space group-hover:text-gradient transition-all duration-300">
                   {feature.title}
                 </CardTitle>
               </CardHeader>

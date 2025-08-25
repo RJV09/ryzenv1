@@ -40,16 +40,16 @@ const Testimonials = () => {
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/10 rounded-full blur-2xl animate-[morphGradient_12s_ease-in-out_infinite_reverse]"></div>
       
       <div className="container mx-auto max-w-7xl relative z-10">
-        <div className={`text-center mb-12 sm:mb-16 ${testimonialsVisible ? 'animate-fade-in' : 'opacity-0'}`} ref={testimonialsRef}>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold font-space mb-4 sm:mb-6 text-shimmer">
+        <div className={`text-center mb-8 sm:mb-12 lg:mb-16 px-4 ${testimonialsVisible ? 'animate-fade-in' : 'opacity-0'}`} ref={testimonialsRef}>
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold font-space mb-3 sm:mb-4 lg:mb-6 text-gradient">
             Loved by Communities
           </h2>
-          <p className="text-lg sm:text-xl lg:text-2xl text-text-muted max-w-3xl mx-auto leading-relaxed font-inter">
+          <p className="text-base xs:text-lg sm:text-xl lg:text-2xl text-text-muted max-w-4xl mx-auto leading-relaxed font-inter">
             See what server owners and community managers say about Ryzen V1
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 px-4">
           {testimonials.map((testimonial, index) => (
             <Card 
               key={index} 

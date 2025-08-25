@@ -66,16 +66,16 @@ const PricingShowcase = () => {
       <div className="absolute bottom-1/3 right-1/5 w-64 h-64 bg-gradient-to-r from-accent/15 to-primary/15 rounded-full blur-2xl animate-[morphGradient_16s_ease-in-out_infinite_reverse]"></div>
       
       <div className="container mx-auto max-w-7xl relative z-10">
-        <div className={`text-center mb-12 sm:mb-16 ${pricingVisible ? 'animate-fade-in' : 'opacity-0'}`} ref={pricingRef}>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold font-space mb-4 sm:mb-6 text-shimmer">
+        <div className={`text-center mb-8 sm:mb-12 lg:mb-16 px-4 ${pricingVisible ? 'animate-fade-in' : 'opacity-0'}`} ref={pricingRef}>
+          <h2 className="text-2xl xs:text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold font-space mb-3 sm:mb-4 lg:mb-6 text-gradient">
             Choose Your Plan
           </h2>
-          <p className="text-lg sm:text-xl lg:text-2xl text-text-muted max-w-3xl mx-auto leading-relaxed font-inter">
+          <p className="text-base xs:text-lg sm:text-xl lg:text-2xl text-text-muted max-w-4xl mx-auto leading-relaxed font-inter">
             Start free and upgrade as your community grows
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-7xl mx-auto px-4">
           {plans.map((plan, index) => (
             <Card 
               key={index} 
@@ -96,7 +96,7 @@ const PricingShowcase = () => {
                 <div className={`w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ${plan.popular ? 'bg-gradient-to-br from-primary/20 to-secondary/20' : 'bg-muted/20'}`}>
                   <plan.icon className={`w-8 h-8 ${plan.popular ? 'text-primary' : 'text-muted-foreground'} group-hover:text-primary transition-colors duration-300`} />
                 </div>
-                <CardTitle className="text-2xl sm:text-3xl text-foreground font-space group-hover:text-shimmer transition-colors duration-300">
+                <CardTitle className="text-xl xs:text-2xl sm:text-3xl text-foreground font-space group-hover:text-gradient transition-colors duration-300">
                   {plan.name}
                 </CardTitle>
                 <div className="text-4xl sm:text-5xl font-bold text-primary mb-2 font-space group-hover:scale-110 transition-transform duration-300">
