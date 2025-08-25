@@ -54,22 +54,29 @@ const Features = () => {
           {features.map((feature, index) => (
             <Card 
               key={index} 
-              className={`bg-card-gradient border-glass-border glass hover:shadow-feature transition-all duration-500 group hover:-translate-y-2 cursor-pointer ${featuresVisible ? 'animate-bounce-in' : 'opacity-0'}`}
+              className={`relative bg-card-gradient hover:bg-card-gradient-hover border-glass-border glass hover:shadow-card-hover transition-all duration-500 group hover:-translate-y-3 cursor-pointer overflow-hidden ${featuresVisible ? 'animate-bounce-in' : 'opacity-0'}`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <CardHeader className="pb-4">
-                <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
-                  <feature.icon className="w-7 h-7 text-primary group-hover:text-primary-glow transition-colors duration-300" />
+              {/* Background glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <CardHeader className="pb-4 relative z-10">
+                <div className="relative w-16 h-16 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl flex items-center justify-center mb-4 group-hover:scale-125 transition-all duration-500 animate-[breathe_3s_ease-in-out_infinite]" style={{ animationDelay: `${index * 0.5}s` }}>
+                  <feature.icon className="w-8 h-8 text-primary group-hover:text-primary-glow transition-colors duration-300" />
+                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full"></div>
                 </div>
-                <CardTitle className="text-xl sm:text-2xl text-foreground font-space group-hover:text-primary transition-colors duration-300">
+                <CardTitle className="text-xl sm:text-2xl text-foreground font-space group-hover:text-shimmer transition-all duration-500">
                   {feature.title}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="relative z-10">
                 <CardDescription className="text-text-muted leading-relaxed text-sm sm:text-base font-inter group-hover:text-foreground transition-colors duration-300">
                   {feature.description}
                 </CardDescription>
               </CardContent>
+              
+              {/* Shimmer effect */}
+              <div className="shimmer-effect absolute inset-0 opacity-0 group-hover:opacity-100"></div>
             </Card>
           ))}
         </div>
