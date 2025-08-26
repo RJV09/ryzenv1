@@ -1,9 +1,29 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { signOut, user } = useAuth();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out.",
+      });
+    }
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-glass-border">
@@ -35,18 +55,21 @@ const Header = () => {
             >
               Showcase
             </a>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-muted-foreground">
+                {user?.email}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleSignOut}
+                className="flex items-center space-x-2"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sign Out</span>
+              </Button>
+            </div>
           </div>
-
-          {/* Desktop CTA */}
-          <Button 
-            variant="default" 
-            className="hidden lg:inline-flex bg-primary hover:bg-primary-dark shadow-button transition-all duration-300 hover:scale-105 font-semibold text-sm xl:text-base px-4 xl:px-6"
-            asChild
-          >
-            <a href="https://discord.com/oauth2/authorize?client_id=1181178429010354176&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
-              Add to Discord
-            </a>
-          </Button>
 
           {/* Mobile Menu Button */}
           <button
