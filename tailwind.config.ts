@@ -84,20 +84,70 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
+				},
+				'glow': {
+					'0%': { textShadow: '0 0 10px hsl(var(--primary)), 0 0 20px hsl(var(--primary))' },
+					'100%': { textShadow: '0 0 20px hsl(var(--primary)), 0 0 40px hsl(var(--primary))' }
+				},
+				'fadeIn': {
+					'0%': { opacity: '0', transform: 'translateY(30px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'slideUp': {
+					'0%': { opacity: '0', transform: 'translateY(50px)' },
+					'100%': { opacity: '1', transform: 'translateY(0)' }
+				},
+				'bounceIn': {
+					'0%': { opacity: '0', transform: 'scale(0.3) translateY(50px)' },
+					'50%': { opacity: '0.8', transform: 'scale(1.05) translateY(-10px)' },
+					'100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+				},
+				'scaleIn': {
+					'0%': { opacity: '0', transform: 'scale(0.8)' },
+					'100%': { opacity: '1', transform: 'scale(1)' }
+				},
+				'particleFloat': {
+					'0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+					'33%': { transform: 'translateY(-20px) rotate(120deg)' },
+					'66%': { transform: 'translateY(10px) rotate(240deg)' }
+				},
+				'morphGradient': {
+					'0%, 100%': { transform: 'scale(1) rotate(0deg)', opacity: '0.6' },
+					'50%': { transform: 'scale(1.2) rotate(180deg)', opacity: '0.8' }
+				},
+				'breathe': {
+					'0%, 100%': { transform: 'scale(1)', opacity: '0.8' },
+					'50%': { transform: 'scale(1.05)', opacity: '1' }
+				},
+				'shimmer': {
+					'0%': { transform: 'translateX(-100%)' },
+					'100%': { transform: 'translateX(100%)' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-10px)' }
+				},
+				'wiggle': {
+					'0%, 100%': { transform: 'rotate(-3deg)' },
+					'50%': { transform: 'rotate(3deg)' }
+				},
+				'slideInLeft': {
+					'0%': { opacity: '0', transform: 'translateX(-50px)' },
+					'100%': { opacity: '1', transform: 'translateX(0)' }
+				},
+				'slideInRight': {
+					'0%': { opacity: '0', transform: 'translateX(50px)' },
+					'100%': { opacity: '1', transform: 'translateX(0)' }
+				},
+				'zoomIn': {
+					'0%': { opacity: '0', transform: 'scale(0.5)' },
+					'100%': { opacity: '1', transform: 'scale(1)' }
 				}
 			},
 			animation: {
@@ -109,19 +159,36 @@ export default {
 				'bounce-in': 'bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
 				'scale-in': 'scaleIn 0.5s ease-out',
 				'float': 'float 3s ease-in-out infinite',
-				'counter': 'counter 2s ease-out',
-				'pulse-glow': 'pulseGlow 2s ease-in-out infinite'
+				'breathe': 'breathe 3s ease-in-out infinite',
+				'shimmer': 'shimmer 2s linear infinite',
+				'wiggle': 'wiggle 1s ease-in-out infinite',
+				'slide-in-left': 'slideInLeft 0.6s ease-out',
+				'slide-in-right': 'slideInRight 0.6s ease-out',
+				'zoom-in': 'zoomIn 0.5s ease-out',
+				'particle-float': 'particleFloat 6s ease-in-out infinite',
+				'morph-gradient': 'morphGradient 8s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'hero-gradient': 'var(--hero-gradient)',
+				'hero-mesh': 'var(--hero-mesh)',
 				'hero-overlay': 'var(--hero-overlay)',
-				'card-gradient': 'var(--card-gradient)'
+				'card-gradient': 'var(--card-gradient)',
+				'card-gradient-hover': 'var(--card-gradient-hover)',
+				'premium-gradient': 'var(--premium-gradient)',
+				'glass-gradient': 'var(--glass-gradient)'
 			},
 			boxShadow: {
 				'glow': 'var(--shadow-glow)',
 				'card': 'var(--shadow-card)',
+				'card-hover': 'var(--shadow-card-hover)',
 				'button': 'var(--shadow-button)',
-				'feature': 'var(--shadow-feature)'
+				'button-hover': 'var(--shadow-button-hover)',
+				'feature': 'var(--shadow-feature)',
+				'premium': '0 20px 60px hsl(262 83% 58% / 0.3), 0 8px 32px hsl(217 91% 60% / 0.2)'
+			},
+			screens: {
+				'xs': '475px',
+				'3xl': '1920px'
 			}
 		}
 	},
