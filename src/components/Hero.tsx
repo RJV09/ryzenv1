@@ -61,7 +61,7 @@ const Hero = () => {
             className="relative bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-button-hover shadow-button transition-all duration-300 hover:scale-105 text-sm xs:text-base sm:text-lg px-6 xs:px-8 sm:px-10 py-4 xs:py-5 sm:py-6 font-semibold overflow-hidden group w-full xs:w-auto"
             asChild
           >
-            <a href="https://discord.com/oauth2/authorize?client_id=1181178429010354176&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
+            <a href="https://discord.com/oauth2/authorize?client_id=1187059297570525255&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
               <span className="relative z-10">Add to Discord →</span>
               <div className="absolute inset-0 bg-gradient-to-r from-accent via-primary to-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </a>

@@ -14,16 +14,29 @@ const Footer = () => {
           <p className="text-text-muted mb-8 text-base sm:text-lg lg:text-xl font-inter max-w-2xl mx-auto leading-relaxed">
             Join thousands of servers already using Ryzen V1 to create amazing communities.
           </p>
-          <Button 
-            size="lg"
-            className={`bg-primary hover:bg-primary-dark shadow-button transition-all duration-300 hover:scale-105 text-base sm:text-lg px-6 sm:px-8 py-6 font-semibold animate-pulse-glow ${footerVisible ? 'animate-bounce-in' : 'opacity-0'}`}
-            style={{ animationDelay: '0.2s' }}
-            asChild
-          >
-            <a href="https://discord.com/oauth2/authorize?client_id=1181178429010354176&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
-              Add Ryzen V1 to Discord →
-            </a>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button 
+              size="lg"
+              className={`bg-primary hover:bg-primary-dark shadow-button transition-all duration-300 hover:scale-105 text-base sm:text-lg px-6 sm:px-8 py-6 font-semibold animate-pulse-glow ${footerVisible ? 'animate-bounce-in' : 'opacity-0'}`}
+              style={{ animationDelay: '0.2s' }}
+              asChild
+            >
+              <a href="https://discord.com/oauth2/authorize?client_id=1187059297570525255&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
+                Add Ryzen V1 to Discord →
+              </a>
+            </Button>
+            <Button 
+              variant="outline"
+              size="lg"
+              className={`border-primary/30 text-primary hover:bg-primary/20 transition-all duration-300 hover:scale-105 text-base sm:text-lg px-6 sm:px-8 py-6 font-semibold ${footerVisible ? 'animate-bounce-in' : 'opacity-0'}`}
+              style={{ animationDelay: '0.4s' }}
+              asChild
+            >
+              <a href="https://discord.gg/tKtAzx4Z9v" target="_blank" rel="noopener noreferrer">
+                Join Support Server
+              </a>
+            </Button>
+          </div>
         </div>
         
         <div className={`border-t border-glass-border pt-8 ${footerVisible ? 'animate-scale-in' : 'opacity-0'}`} style={{ animationDelay: '0.4s' }}>

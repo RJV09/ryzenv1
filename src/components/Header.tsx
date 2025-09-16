@@ -68,6 +68,16 @@ const Header = () => {
                 <LogOut className="h-4 w-4" />
                 <span>Sign Out</span>
               </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="text-primary hover:text-primary-dark transition-colors"
+              >
+                <a href="https://discord.gg/tKtAzx4Z9v" target="_blank" rel="noopener noreferrer">
+                  Support
+                </a>
+              </Button>
             </div>
           </div>
 
@@ -105,11 +115,21 @@ const Header = () => {
               Showcase
             </a>
             <Button 
+              variant="ghost" 
+              size="sm"
+              className="w-full justify-start text-primary hover:text-primary-dark transition-colors py-2"
+              asChild
+            >
+              <a href="https://discord.gg/tKtAzx4Z9v" target="_blank" rel="noopener noreferrer">
+                Support Server
+              </a>
+            </Button>
+            <Button 
               variant="default" 
               className="w-full bg-primary hover:bg-primary-dark shadow-button transition-all duration-300 font-semibold"
               asChild
             >
-              <a href="https://discord.com/oauth2/authorize?client_id=1181178429010354176&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
+              <a href="https://discord.com/oauth2/authorize?client_id=1187059297570525255&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
                 Add to Discord
               </a>
             </Button>

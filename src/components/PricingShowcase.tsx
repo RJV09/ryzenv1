@@ -17,7 +17,7 @@ const PricingShowcase = () => {
         "Music playback",
         "Welcome messages",
         "Up to 100 members",
-        "Community support"
+        "Join support server"
       ],
       popular: false,
       gradient: "from-muted/20 to-muted/10"
@@ -33,6 +33,7 @@ const PricingShowcase = () => {
         "Custom welcome system",
         "Unlimited members",
         "Priority support",
+        "Direct support access",
         "Custom commands",
         "Advanced analytics"
       ],
@@ -49,6 +50,7 @@ const PricingShowcase = () => {
         "White-label solution",
         "Custom integrations",
         "Dedicated support",
+        "VIP support channel",
         "SLA guarantee",
         "Advanced security",
         "Custom development"
@@ -122,11 +124,25 @@ const PricingShowcase = () => {
                 
                 <Button 
                   className={`w-full ${plan.popular 
-                    ? 'bg-gradient-to-r from-primary to-secondary hover:shadow-button-hover shadow-button' 
-                    : 'bg-muted hover:bg-primary/20'} transition-all duration-500 hover:scale-105 font-semibold`}
+                    ? 'bg-gradient-to-r from-primary to-secondary hover:shadow-button-hover shadow-button mb-2' 
+                    : 'bg-muted hover:bg-primary/20 mb-2'} transition-all duration-500 hover:scale-105 font-semibold`}
+                  asChild
                 >
-                  Get Started
+                  <a href="https://discord.com/oauth2/authorize?client_id=1187059297570525255&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
+                    Get Started
+                  </a>
                 </Button>
+                {plan.price !== "$0" && (
+                  <Button 
+                    variant="outline"
+                    className="w-full mt-2 transition-all duration-500 hover:scale-105 font-semibold"
+                    asChild
+                  >
+                    <a href={`https://paypal.me/rjvpandit09/${plan.price.replace('$', '')}`} target="_blank" rel="noopener noreferrer">
+                      Pay with PayPal
+                    </a>
+                  </Button>
+                )}
               </CardContent>
               
               {/* Shimmer effect */}
@@ -137,7 +153,8 @@ const PricingShowcase = () => {
         
         <div className={`text-center mt-12 ${pricingVisible ? 'animate-fade-in' : 'opacity-0'}`} style={{ animationDelay: '0.8s' }}>
           <p className="text-text-muted text-sm sm:text-base mb-4">
-            All plans include 7-day free trial • No setup fees • Cancel anytime
+            All plans include 7-day free trial • No setup fees • Cancel anytime<br/>
+            <span className="text-primary font-medium">Premium payments via PayPal: rjvpandit09@gmail.com</span>
           </p>
           <div className="flex flex-wrap justify-center gap-4 text-xs sm:text-sm text-text-muted">
             <span className="flex items-center gap-2">
@@ -152,6 +169,16 @@ const PricingShowcase = () => {
               <Check className="w-4 h-4 text-primary" />
               Money-back guarantee
             </span>
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-xs font-medium hover:bg-primary/20 transition-all duration-300"
+              asChild
+            >
+              <a href="https://discord.gg/tKtAzx4Z9v" target="_blank" rel="noopener noreferrer">
+                Join Support Server
+              </a>
+            </Button>
           </div>
         </div>
       </div>
