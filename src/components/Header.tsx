@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,11 +30,11 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-glass-border">
       <div className="container mx-auto px-3 xs:px-4 sm:px-6 py-3 xs:py-4">
         <nav className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <span className="text-xl xs:text-2xl sm:text-3xl font-bold font-space text-gradient">
               Ryzen V1
             </span>
-          </div>
+          </Link>
           
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
@@ -49,12 +50,12 @@ const Header = () => {
             >
               How It Works
             </a>
-            <a 
-              href="#showcase" 
+            <Link 
+              to="/reviews"
               className="text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 font-medium text-sm xl:text-base"
             >
-              Showcase
-            </a>
+              Reviews
+            </Link>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">
                 {user?.email}
@@ -76,6 +77,15 @@ const Header = () => {
               >
                 <a href="https://discord.gg/tKtAzx4Z9v" target="_blank" rel="noopener noreferrer">
                   Support
+                </a>
+              </Button>
+              <Button
+                size="sm"
+                asChild
+                className="bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-button-hover transition-all duration-300"
+              >
+                <a href="https://discord.com/oauth2/authorize?client_id=1187059297570525255&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
+                  Add to Server
                 </a>
               </Button>
             </div>
@@ -107,13 +117,13 @@ const Header = () => {
             >
               How It Works
             </a>
-            <a 
-              href="#showcase" 
+            <Link 
+              to="/reviews"
               className="block text-muted-foreground hover:text-primary transition-colors py-2 font-medium"
               onClick={() => setIsOpen(false)}
             >
-              Showcase
-            </a>
+              Reviews
+            </Link>
             <Button 
               variant="ghost" 
               size="sm"
@@ -126,12 +136,21 @@ const Header = () => {
             </Button>
             <Button 
               variant="default" 
-              className="w-full bg-primary hover:bg-primary-dark shadow-button transition-all duration-300 font-semibold"
+              className="w-full bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-button-hover font-semibold"
               asChild
             >
               <a href="https://discord.com/oauth2/authorize?client_id=1187059297570525255&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">
-                Add to Discord
+                Add to Server
               </a>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSignOut}
+              className="w-full flex items-center justify-center space-x-2 mt-4"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Sign Out</span>
             </Button>
           </div>
         )}

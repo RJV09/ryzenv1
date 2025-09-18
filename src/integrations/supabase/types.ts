@@ -37,22 +37,184 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
+          discord_avatar: string | null
+          discord_id: string | null
+          discord_username: string | null
+          display_name: string | null
           email: string | null
           id: string
           updated_at: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
+          discord_avatar?: string | null
+          discord_id?: string | null
+          discord_username?: string | null
+          display_name?: string | null
           email?: string | null
           id: string
           updated_at?: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
+          discord_avatar?: string | null
+          discord_id?: string | null
+          discord_username?: string | null
+          display_name?: string | null
           email?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          created_at: string
+          discord_username: string | null
+          id: string
+          is_approved: boolean
+          name: string
+          rating: number
+          review_text: string
+          server_name: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          discord_username?: string | null
+          id?: string
+          is_approved?: boolean
+          name: string
+          rating: number
+          review_text: string
+          server_name?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          discord_username?: string | null
+          id?: string
+          is_approved?: boolean
+          name?: string
+          rating?: number
+          review_text?: string
+          server_name?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      server_configs: {
+        Row: {
+          antinuke_enabled: boolean | null
+          antinuke_punishment: string | null
+          automod_delete_invites: boolean | null
+          automod_delete_links: boolean | null
+          automod_delete_spam: boolean | null
+          automod_enabled: boolean | null
+          created_at: string
+          guild_icon: string | null
+          guild_id: string
+          guild_name: string
+          id: string
+          invite_log_channel_id: string | null
+          invite_tracker_enabled: boolean | null
+          log_channel_create: boolean | null
+          log_channel_delete: boolean | null
+          log_member_join: boolean | null
+          log_member_leave: boolean | null
+          log_message_delete: boolean | null
+          log_message_edit: boolean | null
+          log_role_create: boolean | null
+          log_role_delete: boolean | null
+          logs_channel_id: string | null
+          logs_enabled: boolean | null
+          max_bans: number | null
+          max_channels_delete: number | null
+          max_roles_delete: number | null
+          prefix: string | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+          welcome_channel_id: string | null
+          welcome_enabled: boolean | null
+          welcome_message: string | null
+        }
+        Insert: {
+          antinuke_enabled?: boolean | null
+          antinuke_punishment?: string | null
+          automod_delete_invites?: boolean | null
+          automod_delete_links?: boolean | null
+          automod_delete_spam?: boolean | null
+          automod_enabled?: boolean | null
+          created_at?: string
+          guild_icon?: string | null
+          guild_id: string
+          guild_name: string
+          id?: string
+          invite_log_channel_id?: string | null
+          invite_tracker_enabled?: boolean | null
+          log_channel_create?: boolean | null
+          log_channel_delete?: boolean | null
+          log_member_join?: boolean | null
+          log_member_leave?: boolean | null
+          log_message_delete?: boolean | null
+          log_message_edit?: boolean | null
+          log_role_create?: boolean | null
+          log_role_delete?: boolean | null
+          logs_channel_id?: string | null
+          logs_enabled?: boolean | null
+          max_bans?: number | null
+          max_channels_delete?: number | null
+          max_roles_delete?: number | null
+          prefix?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+          welcome_channel_id?: string | null
+          welcome_enabled?: boolean | null
+          welcome_message?: string | null
+        }
+        Update: {
+          antinuke_enabled?: boolean | null
+          antinuke_punishment?: string | null
+          automod_delete_invites?: boolean | null
+          automod_delete_links?: boolean | null
+          automod_delete_spam?: boolean | null
+          automod_enabled?: boolean | null
+          created_at?: string
+          guild_icon?: string | null
+          guild_id?: string
+          guild_name?: string
+          id?: string
+          invite_log_channel_id?: string | null
+          invite_tracker_enabled?: boolean | null
+          log_channel_create?: boolean | null
+          log_channel_delete?: boolean | null
+          log_member_join?: boolean | null
+          log_member_leave?: boolean | null
+          log_message_delete?: boolean | null
+          log_message_edit?: boolean | null
+          log_role_create?: boolean | null
+          log_role_delete?: boolean | null
+          logs_channel_id?: string | null
+          logs_enabled?: boolean | null
+          max_bans?: number | null
+          max_channels_delete?: number | null
+          max_roles_delete?: number | null
+          prefix?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+          welcome_channel_id?: string | null
+          welcome_enabled?: boolean | null
+          welcome_message?: string | null
         }
         Relationships: []
       }
