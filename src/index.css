@@ -155,6 +155,9 @@
   body {
     @apply bg-background text-foreground font-inter;
     scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
   .glow {
@@ -181,20 +184,19 @@
   }
   
   @keyframes fadeIn {
-    0% { opacity: 0; transform: translateY(30px); filter: blur(4px); }
-    100% { opacity: 1; transform: translateY(0); filter: blur(0px); }
+    0% { opacity: 0; transform: translate3d(0, 20px, 0); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0); }
   }
   
   @keyframes slideUp {
-    0% { opacity: 0; transform: translateY(60px) scale(0.95); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% { opacity: 0; transform: translate3d(0, 40px, 0); }
+    100% { opacity: 1; transform: translate3d(0, 0, 0); }
   }
   
   @keyframes bounceIn {
-    0% { opacity: 0; transform: scale(0.3) translateY(30px) rotate(-5deg); }
-    50% { opacity: 0.8; transform: scale(1.05) rotate(2deg); }
-    70% { transform: scale(0.98) rotate(-1deg); }
-    100% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+    0% { opacity: 0; transform: scale3d(0.5, 0.5, 1) translate3d(0, 20px, 0); }
+    60% { opacity: 0.8; transform: scale3d(1.02, 1.02, 1) translate3d(0, -5px, 0); }
+    100% { opacity: 1; transform: scale3d(1, 1, 1) translate3d(0, 0, 0); }
   }
   
   @keyframes scaleIn {
@@ -203,9 +205,8 @@
   }
   
   @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    25% { transform: translateY(-8px) rotate(1deg); }
-    75% { transform: translateY(-12px) rotate(-1deg); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(0, -8px, 0); }
   }
   
   @keyframes counter {
@@ -217,11 +218,11 @@
   @keyframes pulseGlow {
     0%, 100% { 
       box-shadow: 0 0 5px hsl(var(--primary) / 0.3);
-      transform: scale(1);
+      transform: scale3d(1, 1, 1);
     }
     50% { 
-      box-shadow: 0 0 25px hsl(var(--primary) / 0.7), 0 0 50px hsl(var(--primary) / 0.5);
-      transform: scale(1.02);
+      box-shadow: 0 0 20px hsl(var(--primary) / 0.6);
+      transform: scale3d(1.01, 1.01, 1);
     }
   }
   
@@ -231,8 +232,8 @@
   }
   
   @keyframes breathe {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.05); opacity: 1; }
+    0%, 100% { transform: scale3d(1, 1, 1); opacity: 0.8; }
+    50% { transform: scale3d(1.02, 1.02, 1); opacity: 1; }
   }
   
   @keyframes morphGradient {
