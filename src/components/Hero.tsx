@@ -44,7 +44,7 @@ const Hero = () => {
             <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
           </span>
           <br />
-          <span className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl bg-gradient-to-r from-foreground via-text-cyan to-text-pink bg-clip-text text-transparent leading-tight block mt-2 sm:mt-3">
+          <span className="text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl bg-gradient-to-r from-foreground via-text-orange to-text-crimson bg-clip-text text-transparent leading-tight block mt-2 sm:mt-3">
             Your Ultimate Discord Assistant
           </span>
         </h1>

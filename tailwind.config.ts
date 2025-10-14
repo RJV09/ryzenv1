@@ -42,7 +42,9 @@ export default {
 					},
 					'hero-bg': 'hsl(var(--hero-bg))',
 					'feature-card': 'hsl(var(--feature-card))',
-					'text-purple': 'hsl(var(--text-purple))',
+					'text-red': 'hsl(var(--text-red))',
+					'text-orange': 'hsl(var(--text-orange))',
+					'text-crimson': 'hsl(var(--text-crimson))',
 					'text-muted': 'hsl(var(--text-muted))',
 					'glass-bg': 'hsl(var(--glass-bg))',
 					'glass-border': 'hsl(var(--glass-border))',
@@ -184,7 +186,8 @@ export default {
 				'button': 'var(--shadow-button)',
 				'button-hover': 'var(--shadow-button-hover)',
 				'feature': 'var(--shadow-feature)',
-				'premium': '0 20px 60px hsl(262 83% 58% / 0.3), 0 8px 32px hsl(217 91% 60% / 0.2)'
+				'premium': '0 20px 60px hsl(0 84% 58% / 0.4), 0 8px 32px hsl(340 90% 58% / 0.3)',
+				'intense': '0 0 100px hsl(0 84% 58% / 0.5), 0 0 50px hsl(0 84% 58% / 0.3)'
 			},
 			screens: {
 				'xs': '475px',
