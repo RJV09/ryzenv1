@@ -68,23 +68,25 @@ const DashboardStats = () => {
       {stats.map((stat, index) => (
         <Card 
           key={index}
-          className="group relative glass border-glass-border hover:shadow-card-hover transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+          className="group relative glass border-glass-border hover:shadow-glow transition-all duration-500 hover:-translate-y-1 overflow-hidden animate-fade-in"
+          style={{ animationDelay: `${index * 0.1}s` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-accent/10 opacity-50"></div>
           
           <CardContent className="p-6 relative z-10">
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${stat.color} p-[2px] group-hover:scale-110 transition-transform duration-300`}>
-                <div className="w-full h-full rounded-lg bg-background flex items-center justify-center">
-                  <stat.icon className="w-5 h-5 text-primary" />
+              <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${stat.color} p-[1px] group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg`}>
+                <div className="w-full h-full rounded-xl bg-background/95 backdrop-blur-sm flex items-center justify-center">
+                  <stat.icon className="w-6 h-6 text-primary group-hover:scale-110 transition-transform duration-300" />
                 </div>
               </div>
             </div>
-            <div className="space-y-1">
-              <p className="text-2xl sm:text-3xl font-bold text-gradient font-space">
+            <div className="space-y-2">
+              <p className="text-3xl sm:text-4xl font-bold text-gradient font-space tracking-tight">
                 {stat.value}
               </p>
-              <p className="text-sm text-text-muted font-medium">
+              <p className="text-sm text-text-muted font-semibold uppercase tracking-wider">
                 {stat.label}
               </p>
             </div>
