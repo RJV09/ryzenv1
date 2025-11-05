@@ -55,9 +55,9 @@ const ServerList = ({ onSelectServer }: ServerListProps) => {
         </CardHeader>
         <CardContent>
           <Button 
-            variant="premium"
+            variant="default"
             size="lg"
-            className="w-full"
+            className="w-full bg-gradient-to-r from-primary via-accent to-secondary hover:shadow-glow"
             asChild
           >
             <a href="https://discord.com/oauth2/authorize?client_id=1187059297570525255&permissions=8&integration_type=0&scope=bot" target="_blank" rel="noopener noreferrer">

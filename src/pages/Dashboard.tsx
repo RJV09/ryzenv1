@@ -126,7 +126,7 @@ const Dashboard = () => {
                       <p className="text-sm text-text-muted mb-4">
                         Automatically detect and remove spam messages.
                       </p>
-                      <Button variant="premium" size="sm" className="w-full">Configure</Button>
+                      <Button variant="default" size="sm" className="w-full bg-gradient-to-r from-primary to-accent">Configure</Button>
                     </div>
                     <div className="group p-6 rounded-xl bg-gradient-to-br from-card via-card to-card/50 border border-glass-border hover:border-primary/50 hover:shadow-glow transition-all duration-500">
                       <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-orange-500 to-yellow-500 p-[1px] mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -138,7 +138,7 @@ const Dashboard = () => {
                       <p className="text-sm text-text-muted mb-4">
                         Block suspicious links and prevent invite spam.
                       </p>
-                      <Button variant="premium" size="sm" className="w-full">Configure</Button>
+                      <Button variant="default" size="sm" className="w-full bg-gradient-to-r from-primary to-accent">Configure</Button>
                     </div>
                     <div className="group p-6 rounded-xl bg-gradient-to-br from-card via-card to-card/50 border border-glass-border hover:border-primary/50 hover:shadow-glow transition-all duration-500">
                       <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500 to-red-500 p-[1px] mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -150,7 +150,7 @@ const Dashboard = () => {
                       <p className="text-sm text-text-muted mb-4">
                         Protect your server from coordinated raids.
                       </p>
-                      <Button variant="premium" size="sm" className="w-full">Configure</Button>
+                      <Button variant="default" size="sm" className="w-full bg-gradient-to-r from-primary to-accent">Configure</Button>
                     </div>
                   </div>
                 </CardContent>
