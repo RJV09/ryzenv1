@@ -79,7 +79,7 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
         });
       } else {
         console.error('Error submitting review:', error);
-        toast.error("Failed to submit review. Please try again.");
+        toast.error(error?.message || "Failed to submit review. Please try again.");
       }
     } finally {
       setIsSubmitting(false);

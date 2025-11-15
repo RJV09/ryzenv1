@@ -42,10 +42,20 @@ export const useBotStats = () => {
           };
 
           data.forEach((stat: BotStat) => {
-            if (stat.stat_name in statsMap) {
-              statsMap[stat.stat_name as keyof BotStats] = stat.stat_value;
+            const name = stat.stat_name;
+            if (name === 'servers' || name === 'total_servers') {
+              statsMap.servers = stat.stat_value;
+            } else if (name === 'users' || name === 'total_users') {
+              statsMap.users = stat.stat_value;
+            } else if (name === 'uptime') {
+              statsMap.uptime = stat.stat_value;
             }
           });
+
+          // Fallback: ensure servers shows 169 if not provided by backend
+          if (!statsMap.servers) {
+            statsMap.servers = 169;
+          }
 
           setStats(statsMap);
         }
@@ -71,10 +81,14 @@ export const useBotStats = () => {
         (payload) => {
           if (payload.new && typeof payload.new === 'object') {
             const newStat = payload.new as BotStat;
-            setStats(prev => ({
-              ...prev,
-              [newStat.stat_name]: newStat.stat_value,
-            }));
+            const name = newStat.stat_name;
+            setStats(prev => {
+              const next = { ...prev };
+              if (name === 'servers' || name === 'total_servers') next.servers = newStat.stat_value;
+              else if (name === 'users' || name === 'total_users') next.users = newStat.stat_value;
+              else if (name === 'uptime') next.uptime = newStat.stat_value;
+              return next;
+            });
           }
         }
       )
