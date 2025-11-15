@@ -56,12 +56,6 @@ const Header = () => {
             >
               Reviews
             </Link>
-            <Link 
-              to="/dashboard"
-              className="text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 font-medium text-sm xl:text-base"
-            >
-              Dashboard
-            </Link>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-muted-foreground">
                 {user?.email}
@@ -130,14 +124,7 @@ const Header = () => {
             >
               Reviews
             </Link>
-            <Link 
-              to="/dashboard"
-              className="block text-muted-foreground hover:text-primary transition-colors py-2 font-medium"
-              onClick={() => setIsOpen(false)}
-            >
-              Dashboard
-            </Link>
-            <Button 
+            <Button
               variant="ghost" 
               size="sm"
               className="w-full justify-start text-primary hover:text-primary-dark transition-colors py-2"
