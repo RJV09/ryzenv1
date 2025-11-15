@@ -16,7 +16,7 @@ interface BotStats {
 
 export const useBotStats = () => {
   const [stats, setStats] = useState<BotStats>({
-    servers: 0,
+    servers: 169,
     users: 0,
     uptime: 0,
   });
