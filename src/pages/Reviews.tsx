@@ -101,7 +101,10 @@ const Reviews = () => {
                 </p>
               </div>
               <div className={`${sectionVisible ? 'animate-slide-up' : 'opacity-0'}`}>
-                <ReviewForm />
+                <ReviewForm onSuccess={() => {
+                  fetchReviews();
+                  setShowForm(false);
+                }} />
               </div>
             </section>
           ) : (

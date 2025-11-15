@@ -9,7 +9,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { reviewSchema, type ReviewFormData } from "@/lib/validation";
 
-const ReviewForm = () => {
+interface ReviewFormProps {
+  onSuccess?: () => void;
+}
+
+const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
   const { user } = useAuth();
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
@@ -62,6 +66,11 @@ const ReviewForm = () => {
       setDiscordUsername("");
       setServerName("");
       setReviewText("");
+
+      // Call success callback if provided
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: any) {
       if (error.errors) {
         // Zod validation errors
