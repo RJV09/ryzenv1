@@ -25,11 +25,6 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!user) {
-      toast.error("You must be logged in to submit a review");
-      return;
-    }
 
     // Validate form data
     try {
@@ -48,7 +43,7 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
       const { error } = await supabase
         .from('reviews')
         .insert({
-          user_id: user.id,
+          user_id: user?.id || null,
           name: validatedData.name,
           discord_username: validatedData.discord_username,
           server_name: validatedData.server_name,
@@ -93,22 +88,11 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
           Share Your Experience
         </CardTitle>
         <p className="text-text-muted text-center">
-          {user ? "Help others discover Ryzen V1 by sharing your experience" : "Please sign in to submit a review"}
+          Help others discover Ryzen V1 by sharing your experience
         </p>
       </CardHeader>
       <CardContent>
-        {!user ? (
-          <div className="text-center py-8">
-            <p className="text-text-muted mb-4">You need to be signed in to write a review.</p>
-            <Button
-              asChild
-              className="bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-button-hover"
-            >
-              <a href="/auth">Sign In</a>
-            </Button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
             {/* Rating */}
             <div>
               <label className="block text-sm font-medium mb-2">
@@ -206,10 +190,9 @@ const ReviewForm = ({ onSuccess }: ReviewFormProps) => {
               disabled={isSubmitting || !rating || !name.trim() || reviewText.trim().length < 10}
               className="w-full bg-gradient-to-r from-primary via-secondary to-accent hover:shadow-button-hover transition-all duration-300"
             >
-              {isSubmitting ? "Submitting..." : "Submit Review"}
-            </Button>
-          </form>
-        )}
+            {isSubmitting ? "Submitting..." : "Submit Review"}
+          </Button>
+        </form>
       </CardContent>
     </Card>
   );
