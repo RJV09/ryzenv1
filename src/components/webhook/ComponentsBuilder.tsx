@@ -45,16 +45,30 @@ const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
     setActionRows(newRows);
   };
 
-  const addSelectMenu = (rowIndex: number) => {
+  const addSelectMenu = (rowIndex: number, selectType: number) => {
     const newRows = [...actionRows];
     if (newRows[rowIndex].components.length > 0) return;
     
-    newRows[rowIndex].components.push({
-      type: 3,
+    const baseComponent = {
       custom_id: `select_${Date.now()}`,
       placeholder: "Select an option",
-      options: [],
-    });
+      min_values: 1,
+      max_values: 1,
+    };
+
+    if (selectType === 3) {
+      newRows[rowIndex].components.push({
+        type: 3,
+        ...baseComponent,
+        options: [],
+      });
+    } else {
+      newRows[rowIndex].components.push({
+        type: selectType,
+        ...baseComponent,
+      });
+    }
+    
     setActionRows(newRows);
   };
 
@@ -131,13 +145,13 @@ const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
             </Button>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => addButton(rowIndex)}
-              disabled={row.components.length >= 5 || (row.components[0]?.type === 3)}
+              disabled={row.components.length >= 5 || (row.components[0]?.type !== 2 && row.components.length > 0)}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Button
@@ -146,115 +160,216 @@ const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => addSelectMenu(rowIndex)}
+              onClick={() => addSelectMenu(rowIndex, 3)}
               disabled={row.components.length > 0}
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Select Menu
+              String Select
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addSelectMenu(rowIndex, 5)}
+              disabled={row.components.length > 0}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              User Select
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addSelectMenu(rowIndex, 6)}
+              disabled={row.components.length > 0}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Role Select
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addSelectMenu(rowIndex, 7)}
+              disabled={row.components.length > 0}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Mentionable Select
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addSelectMenu(rowIndex, 8)}
+              disabled={row.components.length > 0}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Channel Select
             </Button>
           </div>
 
           <div className="space-y-3">
-            {row.components.map((comp, compIndex) => (
-              <div key={compIndex} className="border rounded p-3 space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label>{comp.type === 2 ? "Button" : "Select Menu"} {compIndex + 1}</Label>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeComponent(rowIndex, compIndex)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
+            {row.components.map((comp, compIndex) => {
+              const getComponentTypeName = (type: number) => {
+                switch (type) {
+                  case 2: return "Button";
+                  case 3: return "String Select";
+                  case 5: return "User Select";
+                  case 6: return "Role Select";
+                  case 7: return "Mentionable Select";
+                  case 8: return "Channel Select";
+                  default: return "Component";
+                }
+              };
 
-                {comp.type === 2 ? (
-                  <>
-                    <Input
-                      placeholder="Label"
-                      value={comp.label || ""}
-                      onChange={(e) => updateButton(rowIndex, compIndex, "label", e.target.value)}
-                    />
-                    <Select
-                      value={comp.style?.toString() || "1"}
-                      onValueChange={(value) => updateButton(rowIndex, compIndex, "style", parseInt(value))}
+              return (
+                <div key={compIndex} className="border rounded p-3 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label>{getComponentTypeName(comp.type)} {compIndex + 1}</Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeComponent(rowIndex, compIndex)}
                     >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1">Primary (Blue)</SelectItem>
-                        <SelectItem value="2">Secondary (Gray)</SelectItem>
-                        <SelectItem value="3">Success (Green)</SelectItem>
-                        <SelectItem value="4">Danger (Red)</SelectItem>
-                        <SelectItem value="5">Link</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {comp.style === 5 && (
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {comp.type === 2 ? (
+                    <>
                       <Input
-                        placeholder="URL"
-                        value={comp.url || ""}
-                        onChange={(e) => updateButton(rowIndex, compIndex, "url", e.target.value)}
+                        placeholder="Label"
+                        value={comp.label || ""}
+                        onChange={(e) => updateButton(rowIndex, compIndex, "label", e.target.value)}
                       />
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <Input
-                      placeholder="Placeholder"
-                      value={comp.placeholder || ""}
-                      onChange={(e) => updateButton(rowIndex, compIndex, "placeholder", e.target.value)}
-                    />
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label>Options</Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addSelectOption(rowIndex, compIndex)}
-                          disabled={comp.options?.length >= 25}
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Option
-                        </Button>
-                      </div>
-                      {comp.options?.map((opt: any, optIndex: number) => (
-                        <div key={optIndex} className="border rounded p-2 space-y-2">
-                          <div className="flex justify-between">
-                            <Label>Option {optIndex + 1}</Label>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeSelectOption(rowIndex, compIndex, optIndex)}
-                            >
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
+                      <Select
+                        value={comp.style?.toString() || "1"}
+                        onValueChange={(value) => updateButton(rowIndex, compIndex, "style", parseInt(value))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">Primary (Blue)</SelectItem>
+                          <SelectItem value="2">Secondary (Gray)</SelectItem>
+                          <SelectItem value="3">Success (Green)</SelectItem>
+                          <SelectItem value="4">Danger (Red)</SelectItem>
+                          <SelectItem value="5">Link</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {comp.style === 5 && (
+                        <Input
+                          placeholder="URL"
+                          value={comp.url || ""}
+                          onChange={(e) => updateButton(rowIndex, compIndex, "url", e.target.value)}
+                        />
+                      )}
+                      <Input
+                        placeholder="Emoji (optional)"
+                        value={comp.emoji || ""}
+                        onChange={(e) => updateButton(rowIndex, compIndex, "emoji", e.target.value)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Input
+                        placeholder="Placeholder"
+                        value={comp.placeholder || ""}
+                        onChange={(e) => updateButton(rowIndex, compIndex, "placeholder", e.target.value)}
+                      />
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="space-y-2">
+                          <Label>Min Values</Label>
                           <Input
-                            placeholder="Label"
-                            value={opt.label || ""}
-                            onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "label", e.target.value)}
-                          />
-                          <Input
-                            placeholder="Value"
-                            value={opt.value || ""}
-                            onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "value", e.target.value)}
-                          />
-                          <Input
-                            placeholder="Description (optional)"
-                            value={opt.description || ""}
-                            onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "description", e.target.value)}
+                            type="number"
+                            min="1"
+                            max="25"
+                            value={comp.min_values || 1}
+                            onChange={(e) => updateButton(rowIndex, compIndex, "min_values", parseInt(e.target.value))}
                           />
                         </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+                        <div className="space-y-2">
+                          <Label>Max Values</Label>
+                          <Input
+                            type="number"
+                            min="1"
+                            max="25"
+                            value={comp.max_values || 1}
+                            onChange={(e) => updateButton(rowIndex, compIndex, "max_values", parseInt(e.target.value))}
+                          />
+                        </div>
+                      </div>
+                      {comp.type === 3 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label>Options</Label>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addSelectOption(rowIndex, compIndex)}
+                              disabled={comp.options?.length >= 25}
+                            >
+                              <Plus className="w-4 h-4 mr-2" />
+                              Add Option
+                            </Button>
+                          </div>
+                          {comp.options?.map((opt: any, optIndex: number) => (
+                            <div key={optIndex} className="border rounded p-2 space-y-2">
+                              <div className="flex justify-between">
+                                <Label>Option {optIndex + 1}</Label>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeSelectOption(rowIndex, compIndex, optIndex)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                              <Input
+                                placeholder="Label"
+                                value={opt.label || ""}
+                                onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "label", e.target.value)}
+                              />
+                              <Input
+                                placeholder="Value"
+                                value={opt.value || ""}
+                                onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "value", e.target.value)}
+                              />
+                              <Input
+                                placeholder="Description (optional)"
+                                value={opt.description || ""}
+                                onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "description", e.target.value)}
+                              />
+                              <Input
+                                placeholder="Emoji (optional)"
+                                value={opt.emoji || ""}
+                                onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "emoji", e.target.value)}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {comp.type === 8 && (
+                        <div className="space-y-2">
+                          <Label>Channel Types (comma-separated)</Label>
+                          <Input
+                            placeholder="0,2,5 (0=Text, 2=Voice, 5=Announcement)"
+                            value={comp.channel_types?.join(',') || ""}
+                            onChange={(e) => {
+                              const types = e.target.value.split(',').map(t => parseInt(t.trim())).filter(t => !isNaN(t));
+                              updateButton(rowIndex, compIndex, "channel_types", types);
+                            }}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       ))}

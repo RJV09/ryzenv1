@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import EmbedBuilder from "@/components/webhook/EmbedBuilder";
 import ComponentsBuilder from "@/components/webhook/ComponentsBuilder";
+import MessagePreview from "@/components/webhook/MessagePreview";
 
 const WebhookSender = () => {
   const [webhookUrl, setWebhookUrl] = useState("");
@@ -68,7 +70,7 @@ const WebhookSender = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-24">
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8">
           <div className="text-center space-y-4">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               Discord Webhook Sender
@@ -91,18 +93,38 @@ const WebhookSender = () => {
             </div>
           </Card>
 
-          <EmbedBuilder onEmbedChange={setEmbed} />
-          <ComponentsBuilder onComponentsChange={setComponents} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <Tabs defaultValue="embed" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="embed">Embed Builder</TabsTrigger>
+                  <TabsTrigger value="components">Components v2</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="embed" className="mt-6">
+                  <EmbedBuilder onEmbedChange={setEmbed} />
+                </TabsContent>
+                
+                <TabsContent value="components" className="mt-6">
+                  <ComponentsBuilder onComponentsChange={setComponents} />
+                </TabsContent>
+              </Tabs>
 
-          <div className="flex justify-center">
-            <Button 
-              size="lg"
-              onClick={handleSend}
-              disabled={isSending}
-              className="px-8"
-            >
-              {isSending ? "Sending..." : "Send to Webhook"}
-            </Button>
+              <div className="flex justify-center">
+                <Button 
+                  size="lg"
+                  onClick={handleSend}
+                  disabled={isSending}
+                  className="px-8"
+                >
+                  {isSending ? "Sending..." : "Send to Webhook"}
+                </Button>
+              </div>
+            </div>
+
+            <div className="lg:sticky lg:top-24 h-fit">
+              <MessagePreview embed={embed} components={components} />
+            </div>
           </div>
         </div>
       </main>
