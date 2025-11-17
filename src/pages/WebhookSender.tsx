@@ -10,12 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import EmbedBuilder from "@/components/webhook/EmbedBuilder";
 import ComponentsBuilder from "@/components/webhook/ComponentsBuilder";
+import MediaGalleryBuilder from "@/components/webhook/MediaGalleryBuilder";
 import MessagePreview from "@/components/webhook/MessagePreview";
 
 const WebhookSender = () => {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [content, setContent] = useState("");
   const [embed, setEmbed] = useState<any>(null);
+  const [galleryEmbeds, setGalleryEmbeds] = useState<any[]>([]);
   const [components, setComponents] = useState<any[]>([]);
   const [isSending, setIsSending] = useState(false);
 
@@ -25,8 +27,8 @@ const WebhookSender = () => {
       return;
     }
 
-    if (!content && !embed && components.length === 0) {
-      toast.error("Please add content, an embed, or components");
+    if (!content && !embed && galleryEmbeds.length === 0 && components.length === 0) {
+      toast.error("Please add content, an embed, media, or components");
       return;
     }
 
@@ -39,9 +41,10 @@ const WebhookSender = () => {
         payload.content = content;
       }
 
-      if (embed) {
-        payload.embeds = [embed];
-      }
+      const embeds: any[] = [];
+      if (embed) embeds.push(embed);
+      if (galleryEmbeds.length > 0) embeds.push(...galleryEmbeds);
+      if (embeds.length > 0) payload.embeds = embeds;
 
       if (components.length > 0) {
         payload.components = components;
@@ -110,9 +113,10 @@ const WebhookSender = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-6">
               <Tabs defaultValue="embed" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="embed">Embed Builder</TabsTrigger>
                   <TabsTrigger value="components">Components v2</TabsTrigger>
+                  <TabsTrigger value="media">Media Gallery</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="embed" className="mt-6">
@@ -121,6 +125,10 @@ const WebhookSender = () => {
                 
                 <TabsContent value="components" className="mt-6">
                   <ComponentsBuilder onComponentsChange={setComponents} />
+                </TabsContent>
+
+                <TabsContent value="media" className="mt-6">
+                  <MediaGalleryBuilder onChange={setGalleryEmbeds} />
                 </TabsContent>
               </Tabs>
 
@@ -137,7 +145,7 @@ const WebhookSender = () => {
             </div>
 
             <div className="lg:sticky lg:top-24 h-fit">
-              <MessagePreview content={content} embed={embed} components={components} />
+              <MessagePreview content={content} embed={embed} components={components} galleryEmbeds={galleryEmbeds} />
             </div>
           </div>
         </div>
