@@ -21,6 +21,8 @@ const EmbedBuilder = ({ onEmbedChange }: EmbedBuilderProps) => {
   const [footerIcon, setFooterIcon] = useState("");
   const [author, setAuthor] = useState("");
   const [authorIcon, setAuthorIcon] = useState("");
+  const [authorUrl, setAuthorUrl] = useState("");
+  const [timestamp, setTimestamp] = useState(false);
   const [fields, setFields] = useState<Array<{ name: string; value: string; inline: boolean }>>([]);
 
   useEffect(() => {
@@ -32,6 +34,7 @@ const EmbedBuilder = ({ onEmbedChange }: EmbedBuilderProps) => {
     if (url) embed.url = url;
     if (thumbnail) embed.thumbnail = { url: thumbnail };
     if (image) embed.image = { url: image };
+    if (timestamp) embed.timestamp = new Date().toISOString();
     if (footer) {
       embed.footer = { text: footer };
       if (footerIcon) embed.footer.icon_url = footerIcon;
@@ -39,13 +42,14 @@ const EmbedBuilder = ({ onEmbedChange }: EmbedBuilderProps) => {
     if (author) {
       embed.author = { name: author };
       if (authorIcon) embed.author.icon_url = authorIcon;
+      if (authorUrl) embed.author.url = authorUrl;
     }
     if (fields.length > 0) {
       embed.fields = fields.filter(f => f.name && f.value);
     }
 
     onEmbedChange(Object.keys(embed).length > 0 ? embed : null);
-  }, [title, description, color, url, thumbnail, image, footer, footerIcon, author, authorIcon, fields, onEmbedChange]);
+  }, [title, description, color, url, thumbnail, image, timestamp, footer, footerIcon, author, authorIcon, authorUrl, fields, onEmbedChange]);
 
   const addField = () => {
     setFields([...fields, { name: "", value: "", inline: false }]);
@@ -156,6 +160,17 @@ const EmbedBuilder = ({ onEmbedChange }: EmbedBuilderProps) => {
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="authorUrl">Author URL</Label>
+        <Input
+          id="authorUrl"
+          type="url"
+          placeholder="https://example.com"
+          value={authorUrl}
+          onChange={(e) => setAuthorUrl(e.target.value)}
+        />
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="footer">Footer Text</Label>
@@ -177,6 +192,17 @@ const EmbedBuilder = ({ onEmbedChange }: EmbedBuilderProps) => {
             onChange={(e) => setFooterIcon(e.target.value)}
           />
         </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          id="timestamp"
+          checked={timestamp}
+          onChange={(e) => setTimestamp(e.target.checked)}
+          className="rounded border-border"
+        />
+        <Label htmlFor="timestamp">Add Timestamp</Label>
       </div>
 
       <div className="space-y-4">

@@ -1,11 +1,12 @@
 import { Card } from "@/components/ui/card";
 
 interface MessagePreviewProps {
+  content?: string;
   embed: any;
   components: any[];
 }
 
-const MessagePreview = ({ embed, components }: MessagePreviewProps) => {
+const MessagePreview = ({ content, embed, components }: MessagePreviewProps) => {
   const getButtonStyle = (style: number) => {
     switch (style) {
       case 1: return "bg-[#5865F2] hover:bg-[#4752C4] text-white";
@@ -30,6 +31,12 @@ const MessagePreview = ({ embed, components }: MessagePreviewProps) => {
           </div>
         </div>
 
+        {content && (
+          <div className="text-[#DBDEE1] mb-4 whitespace-pre-wrap">
+            {content}
+          </div>
+        )}
+
         {embed && (
           <div 
             className="border-l-4 rounded bg-[#2B2D31] p-4 space-y-2"
@@ -40,13 +47,23 @@ const MessagePreview = ({ embed, components }: MessagePreviewProps) => {
                 {embed.author.icon_url && (
                   <img src={embed.author.icon_url} alt="" className="w-6 h-6 rounded-full" />
                 )}
-                <span className="text-white text-sm font-semibold">{embed.author.name}</span>
+                {embed.author.url ? (
+                  <a href={embed.author.url} target="_blank" rel="noopener noreferrer" className="text-white text-sm font-semibold hover:underline">
+                    {embed.author.name}
+                  </a>
+                ) : (
+                  <span className="text-white text-sm font-semibold">{embed.author.name}</span>
+                )}
               </div>
             )}
 
             {embed.title && (
               <div className="text-[#00AFF4] font-semibold text-base hover:underline cursor-pointer">
-                {embed.title}
+                {embed.url ? (
+                  <a href={embed.url} target="_blank" rel="noopener noreferrer">{embed.title}</a>
+                ) : (
+                  embed.title
+                )}
               </div>
             )}
 
@@ -86,12 +103,23 @@ const MessagePreview = ({ embed, components }: MessagePreviewProps) => {
               />
             )}
 
-            {embed.footer && (
+            {(embed.footer || embed.timestamp) && (
               <div className="flex items-center gap-2 mt-2 text-xs text-[#949BA4]">
-                {embed.footer.icon_url && (
+                {embed.footer?.icon_url && (
                   <img src={embed.footer.icon_url} alt="" className="w-5 h-5 rounded-full" />
                 )}
-                <span>{embed.footer.text}</span>
+                {embed.footer?.text && <span>{embed.footer.text}</span>}
+                {embed.footer?.text && embed.timestamp && <span>•</span>}
+                {embed.timestamp && (
+                  <span>{new Date(embed.timestamp).toLocaleString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric', 
+                    year: 'numeric', 
+                    hour: 'numeric', 
+                    minute: '2-digit', 
+                    hour12: true 
+                  })}</span>
+                )}
               </div>
             )}
           </div>
@@ -128,9 +156,9 @@ const MessagePreview = ({ embed, components }: MessagePreviewProps) => {
           </div>
         )}
 
-        {!embed && (!components || components.length === 0) && (
+        {!content && !embed && (!components || components.length === 0) && (
           <div className="text-[#949BA4] text-center py-8">
-            No preview available. Create an embed or add components to see a preview.
+            No preview available. Add content, create an embed, or add components to see a preview.
           </div>
         )}
       </div>
