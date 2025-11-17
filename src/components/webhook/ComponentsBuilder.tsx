@@ -41,6 +41,7 @@ const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
       style: 1,
       label: "",
       custom_id: `button_${Date.now()}`,
+      url: undefined,
     });
     setActionRows(newRows);
   };
@@ -80,8 +81,23 @@ const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
 
   const updateButton = (rowIndex: number, compIndex: number, key: string, value: any) => {
     const newRows = [...actionRows];
+    const component = newRows[rowIndex].components[compIndex];
+    
+    // Handle style change for buttons
+    if (key === 'style') {
+      if (value === 5) {
+        // Link button - remove custom_id, add url
+        delete component.custom_id;
+        component.url = component.url || "";
+      } else {
+        // Regular button - remove url, add custom_id
+        delete component.url;
+        component.custom_id = component.custom_id || `button_${Date.now()}`;
+      }
+    }
+    
     newRows[rowIndex].components[compIndex] = {
-      ...newRows[rowIndex].components[compIndex],
+      ...component,
       [key]: value
     };
     setActionRows(newRows);

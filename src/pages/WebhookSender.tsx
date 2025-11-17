@@ -14,6 +14,7 @@ import MessagePreview from "@/components/webhook/MessagePreview";
 
 const WebhookSender = () => {
   const [webhookUrl, setWebhookUrl] = useState("");
+  const [content, setContent] = useState("");
   const [embed, setEmbed] = useState<any>(null);
   const [components, setComponents] = useState<any[]>([]);
   const [isSending, setIsSending] = useState(false);
@@ -24,8 +25,8 @@ const WebhookSender = () => {
       return;
     }
 
-    if (!embed && components.length === 0) {
-      toast.error("Please create an embed or add components");
+    if (!content && !embed && components.length === 0) {
+      toast.error("Please add content, an embed, or components");
       return;
     }
 
@@ -34,6 +35,10 @@ const WebhookSender = () => {
     try {
       const payload: any = {};
       
+      if (content) {
+        payload.content = content;
+      }
+
       if (embed) {
         payload.embeds = [embed];
       }
@@ -91,6 +96,15 @@ const WebhookSender = () => {
                 onChange={(e) => setWebhookUrl(e.target.value)}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="content">Message Content (optional)</Label>
+              <Input
+                id="content"
+                placeholder="Type your message here..."
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+              />
+            </div>
           </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -123,7 +137,7 @@ const WebhookSender = () => {
             </div>
 
             <div className="lg:sticky lg:top-24 h-fit">
-              <MessagePreview embed={embed} components={components} />
+              <MessagePreview content={content} embed={embed} components={components} />
             </div>
           </div>
         </div>
