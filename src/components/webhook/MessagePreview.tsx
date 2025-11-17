@@ -4,9 +4,10 @@ interface MessagePreviewProps {
   content?: string;
   embed: any;
   components: any[];
+  galleryEmbeds?: any[];
 }
 
-const MessagePreview = ({ content, embed, components }: MessagePreviewProps) => {
+const MessagePreview = ({ content, embed, components, galleryEmbeds = [] }: MessagePreviewProps) => {
   const getButtonStyle = (style: number) => {
     switch (style) {
       case 1: return "bg-[#5865F2] hover:bg-[#4752C4] text-white";
@@ -122,6 +123,15 @@ const MessagePreview = ({ content, embed, components }: MessagePreviewProps) => 
                 )}
               </div>
             )}
+          </div>
+        )}
+        {galleryEmbeds && galleryEmbeds.length > 0 && (
+          <div className="grid grid-cols-2 gap-2">
+            {galleryEmbeds.map((g: any, idx: number) => (
+              g?.image?.url ? (
+                <img key={idx} src={g.image.url} alt="" className="rounded max-w-full" style={{ maxHeight: '200px' }} />
+              ) : null
+            ))}
           </div>
         )}
 
