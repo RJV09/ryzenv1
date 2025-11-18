@@ -8,10 +8,23 @@ import { Plus, X } from "lucide-react";
 
 interface ComponentsBuilderProps {
   onComponentsChange: (components: any[]) => void;
+  onMediaChange?: (embeds: any[]) => void;
+  onThumbnailsChange?: (embeds: any[]) => void;
+  onAttachmentsChange?: (attachments: string[]) => void;
 }
 
-const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
+const ComponentsBuilder = ({ 
+  onComponentsChange, 
+  onMediaChange, 
+  onThumbnailsChange, 
+  onAttachmentsChange 
+}: ComponentsBuilderProps) => {
   const [actionRows, setActionRows] = useState<Array<{ type: string; components: any[] }>>([]);
+  
+  // Media & Attachments state
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
+  const [thumbnailUrls, setThumbnailUrls] = useState<string[]>([]);
+  const [attachments, setAttachments] = useState<string[]>([]);
 
   useEffect(() => {
     const formattedRows = actionRows
@@ -23,6 +36,29 @@ const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
     
     onComponentsChange(formattedRows);
   }, [actionRows, onComponentsChange]);
+
+  // Emit media gallery embeds
+  useEffect(() => {
+    const embeds = mediaUrls
+      .map(u => u.trim())
+      .filter(Boolean)
+      .map(url => ({ image: { url } }));
+    onMediaChange?.(embeds);
+  }, [mediaUrls, onMediaChange]);
+
+  // Emit thumbnail embeds
+  useEffect(() => {
+    const embeds = thumbnailUrls
+      .map(u => u.trim())
+      .filter(Boolean)
+      .map(url => ({ thumbnail: { url } }));
+    onThumbnailsChange?.(embeds);
+  }, [thumbnailUrls, onThumbnailsChange]);
+
+  // Emit attachments
+  useEffect(() => {
+    onAttachmentsChange?.(attachments.map(u => u.trim()).filter(Boolean));
+  }, [attachments, onAttachmentsChange]);
 
   const addActionRow = () => {
     setActionRows([...actionRows, { type: "button", components: [] }]);
@@ -133,24 +169,41 @@ const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
     setActionRows(newRows);
   };
 
+  // Helper functions for media/thumbnail/attachment lists
+  const addToList = (setter: (fn: (arr: string[]) => string[]) => void) => {
+    setter(arr => [...arr, ""]);
+  };
+
+  const removeFromList = (setter: (fn: (arr: string[]) => string[]) => void, index: number) => {
+    setter(arr => arr.filter((_, i) => i !== index));
+  };
+
+  const updateInList = (setter: (fn: (arr: string[]) => string[]) => void, index: number, value: string) => {
+    setter(arr => {
+      const next = [...arr];
+      next[index] = value;
+      return next;
+    });
+  };
+
   return (
     <Card className="p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Components Builder</h2>
+        <h2 className="text-2xl font-bold">Components v2 Builder</h2>
         <Button
           type="button"
           variant="outline"
           onClick={addActionRow}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Action Row
+          Add Container (Action Row)
         </Button>
       </div>
 
       {actionRows.map((row, rowIndex) => (
         <div key={rowIndex} className="border rounded-lg p-4 space-y-4">
           <div className="flex justify-between items-center">
-            <Label>Action Row {rowIndex + 1}</Label>
+            <Label>Container {rowIndex + 1} (Action Row)</Label>
             <Button
               type="button"
               variant="ghost"
@@ -389,6 +442,113 @@ const ComponentsBuilder = ({ onComponentsChange }: ComponentsBuilderProps) => {
           </div>
         </div>
       ))}
+
+      {/* Media Gallery, Thumbnails & Attachments */}
+      <div className="border rounded-lg p-4 space-y-4">
+        <h3 className="text-lg font-semibold">Media & Attachments</h3>
+
+        {/* Media Gallery */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label>Media Gallery (Image URLs)</Label>
+            <Button type="button" variant="outline" size="sm" onClick={() => addToList(setMediaUrls)}>
+              <Plus className="w-4 h-4 mr-2" /> Add Image
+            </Button>
+          </div>
+          {mediaUrls.length === 0 && (
+            <p className="text-sm text-muted-foreground">Add image URLs to create gallery embeds.</p>
+          )}
+          <div className="space-y-2">
+            {mediaUrls.map((url, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <Input
+                  placeholder="https://example.com/image.png"
+                  value={url}
+                  onChange={(e) => updateInList(setMediaUrls, idx, e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFromList(setMediaUrls, idx)}
+                  aria-label="Remove image"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Thumbnails */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label>Thumbnails (Thumbnail URLs)</Label>
+            <Button type="button" variant="outline" size="sm" onClick={() => addToList(setThumbnailUrls)}>
+              <Plus className="w-4 h-4 mr-2" /> Add Thumbnail
+            </Button>
+          </div>
+          {thumbnailUrls.length === 0 && (
+            <p className="text-sm text-muted-foreground">Add thumbnail URLs. Each will be sent as a small embed thumbnail.</p>
+          )}
+          <div className="space-y-2">
+            {thumbnailUrls.map((url, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <Input
+                  placeholder="https://example.com/thumb.png"
+                  value={url}
+                  onChange={(e) => updateInList(setThumbnailUrls, idx, e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFromList(setThumbnailUrls, idx)}
+                  aria-label="Remove thumbnail"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Attachments */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label>Attachments (File URLs)</Label>
+            <Button type="button" variant="outline" size="sm" onClick={() => addToList(setAttachments)}>
+              <Plus className="w-4 h-4 mr-2" /> Add Attachment
+            </Button>
+          </div>
+          {attachments.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              Discord webhooks require multipart for real file uploads. These URLs will be appended to the message content.
+            </p>
+          )}
+          <div className="space-y-2">
+            {attachments.map((url, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <Input
+                  placeholder="https://example.com/file.pdf"
+                  value={url}
+                  onChange={(e) => updateInList(setAttachments, idx, e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => removeFromList(setAttachments, idx)}
+                  aria-label="Remove attachment"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
     </Card>
   );
 };
