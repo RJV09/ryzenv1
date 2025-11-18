@@ -19,6 +19,9 @@ const WebhookSender = () => {
   const [embed, setEmbed] = useState<any>(null);
   const [galleryEmbeds, setGalleryEmbeds] = useState<any[]>([]);
   const [components, setComponents] = useState<any[]>([]);
+  const [componentsMediaEmbeds, setComponentsMediaEmbeds] = useState<any[]>([]);
+  const [componentsThumbnailEmbeds, setComponentsThumbnailEmbeds] = useState<any[]>([]);
+  const [componentsAttachments, setComponentsAttachments] = useState<string[]>([]);
   const [isSending, setIsSending] = useState(false);
 
   const handleSend = async () => {
@@ -37,13 +40,18 @@ const WebhookSender = () => {
     try {
       const payload: any = {};
       
-      if (content) {
-        payload.content = content;
+      // Merge content with attachment links (URLs)
+      const attachmentLinks = componentsAttachments.length > 0 ? componentsAttachments.map((u) => `<${u}>`).join("\n") : "";
+      const mergedContent = [content, attachmentLinks].filter(Boolean).join("\n");
+      if (mergedContent) {
+        payload.content = mergedContent;
       }
 
       const embeds: any[] = [];
       if (embed) embeds.push(embed);
       if (galleryEmbeds.length > 0) embeds.push(...galleryEmbeds);
+      if (componentsMediaEmbeds.length > 0) embeds.push(...componentsMediaEmbeds);
+      if (componentsThumbnailEmbeds.length > 0) embeds.push(...componentsThumbnailEmbeds);
       if (embeds.length > 0) payload.embeds = embeds;
 
       if (components.length > 0) {
@@ -71,6 +79,8 @@ const WebhookSender = () => {
       setIsSending(false);
     }
   };
+
+  const previewContent = [content, componentsAttachments.map((u) => `<${u}>`).join("\n")].filter(Boolean).join("\n");
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -124,7 +134,12 @@ const WebhookSender = () => {
                 </TabsContent>
                 
                 <TabsContent value="components" className="mt-6">
-                  <ComponentsBuilder onComponentsChange={setComponents} />
+                  <ComponentsBuilder 
+                    onComponentsChange={setComponents}
+                    onMediaChange={setComponentsMediaEmbeds}
+                    onThumbnailsChange={setComponentsThumbnailEmbeds}
+                    onAttachmentsChange={setComponentsAttachments}
+                  />
                 </TabsContent>
 
                 <TabsContent value="media" className="mt-6">
@@ -145,7 +160,7 @@ const WebhookSender = () => {
             </div>
 
             <div className="lg:sticky lg:top-24 h-fit">
-              <MessagePreview content={content} embed={embed} components={components} galleryEmbeds={galleryEmbeds} />
+              <MessagePreview content={previewContent} embed={embed} components={components} galleryEmbeds={[...galleryEmbeds, ...componentsMediaEmbeds, ...componentsThumbnailEmbeds]} />
             </div>
           </div>
         </div>

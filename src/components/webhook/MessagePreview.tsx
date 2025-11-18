@@ -130,6 +130,8 @@ const MessagePreview = ({ content, embed, components, galleryEmbeds = [] }: Mess
             {galleryEmbeds.map((g: any, idx: number) => (
               g?.image?.url ? (
                 <img key={idx} src={g.image.url} alt="" className="rounded max-w-full" style={{ maxHeight: '200px' }} />
+              ) : g?.thumbnail?.url ? (
+                <img key={idx} src={g.thumbnail.url} alt="" className="rounded max-w-full" style={{ maxHeight: '120px' }} />
               ) : null
             ))}
           </div>
