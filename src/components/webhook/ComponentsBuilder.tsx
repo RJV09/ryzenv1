@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, X } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, X, FileIcon, Image, Type, Minus } from "lucide-react";
 
 interface ComponentsBuilderProps {
   onComponentsChange: (components: any[]) => void;
@@ -19,12 +20,11 @@ const ComponentsBuilder = ({
   onThumbnailsChange, 
   onAttachmentsChange 
 }: ComponentsBuilderProps) => {
-  const [actionRows, setActionRows] = useState<Array<{ type: string; components: any[] }>>([]);
-  
-  // Media & Attachments state
+  const [actionRows, setActionRows] = useState<Array<{ type: number; components: any[] }>>([]);
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [thumbnailUrls, setThumbnailUrls] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<string[]>([]);
+  const [accentColor, setAccentColorState] = useState<string>("");
 
   useEffect(() => {
     const formattedRows = actionRows
@@ -37,7 +37,6 @@ const ComponentsBuilder = ({
     onComponentsChange(formattedRows);
   }, [actionRows, onComponentsChange]);
 
-  // Emit media gallery embeds
   useEffect(() => {
     const embeds = mediaUrls
       .map(u => u.trim())
@@ -46,7 +45,6 @@ const ComponentsBuilder = ({
     onMediaChange?.(embeds);
   }, [mediaUrls, onMediaChange]);
 
-  // Emit thumbnail embeds
   useEffect(() => {
     const embeds = thumbnailUrls
       .map(u => u.trim())
@@ -55,57 +53,113 @@ const ComponentsBuilder = ({
     onThumbnailsChange?.(embeds);
   }, [thumbnailUrls, onThumbnailsChange]);
 
-  // Emit attachments
   useEffect(() => {
     onAttachmentsChange?.(attachments.map(u => u.trim()).filter(Boolean));
   }, [attachments, onAttachmentsChange]);
 
+  // Action Row Methods
   const addActionRow = () => {
-    setActionRows([...actionRows, { type: "button", components: [] }]);
+    setActionRows([...actionRows, { type: 1, components: [] }]);
   };
 
   const removeActionRow = (index: number) => {
     setActionRows(actionRows.filter((_, i) => i !== index));
   };
 
-  const addButton = (rowIndex: number) => {
+  const addActionRowComponents = (rowIndex: number, componentType: string) => {
     const newRows = [...actionRows];
-    if (newRows[rowIndex].components.length >= 5) return;
+    const row = newRows[rowIndex];
+
+    switch (componentType) {
+      case 'button':
+        if (row.components.length >= 5) return;
+        row.components.push({
+          type: 2,
+          style: 1,
+          label: "",
+          custom_id: `btn_${Date.now()}`,
+        });
+        break;
+      case 'stringSelect':
+        if (row.components.length > 0) return;
+        row.components.push({
+          type: 3,
+          custom_id: `select_${Date.now()}`,
+          placeholder: "Select an option",
+          options: [],
+          min_values: 1,
+          max_values: 1,
+        });
+        break;
+      case 'userSelect':
+        if (row.components.length > 0) return;
+        row.components.push({
+          type: 5,
+          custom_id: `user_${Date.now()}`,
+          placeholder: "Select a user",
+          min_values: 1,
+          max_values: 1,
+        });
+        break;
+      case 'roleSelect':
+        if (row.components.length > 0) return;
+        row.components.push({
+          type: 6,
+          custom_id: `role_${Date.now()}`,
+          placeholder: "Select a role",
+          min_values: 1,
+          max_values: 1,
+        });
+        break;
+      case 'channelSelect':
+        if (row.components.length > 0) return;
+        row.components.push({
+          type: 8,
+          custom_id: `channel_${Date.now()}`,
+          placeholder: "Select a channel",
+          min_values: 1,
+          max_values: 1,
+        });
+        break;
+    }
     
+    setActionRows(newRows);
+  };
+
+  // Component Methods
+  const addSeparator = (rowIndex: number) => {
+    const newRows = [...actionRows];
     newRows[rowIndex].components.push({
-      type: 2,
-      style: 1,
-      label: "",
-      custom_id: `button_${Date.now()}`,
-      url: undefined,
+      type: 12,
+      divider: true,
     });
     setActionRows(newRows);
   };
 
-  const addSelectMenu = (rowIndex: number, selectType: number) => {
+  const addTextDisplay = (rowIndex: number) => {
     const newRows = [...actionRows];
-    if (newRows[rowIndex].components.length > 0) return;
-    
-    const baseComponent = {
-      custom_id: `select_${Date.now()}`,
-      placeholder: "Select an option",
-      min_values: 1,
-      max_values: 1,
-    };
+    newRows[rowIndex].components.push({
+      type: 13,
+      content: "",
+    });
+    setActionRows(newRows);
+  };
 
-    if (selectType === 3) {
-      newRows[rowIndex].components.push({
-        type: 3,
-        ...baseComponent,
-        options: [],
-      });
-    } else {
-      newRows[rowIndex].components.push({
-        type: selectType,
-        ...baseComponent,
-      });
-    }
-    
+  const addFileComponents = () => {
+    addToList(setAttachments);
+  };
+
+  const addMediaGallery = () => {
+    addToList(setMediaUrls);
+  };
+
+  const addSectionComponents = (rowIndex: number) => {
+    const newRows = [...actionRows];
+    newRows[rowIndex].components.push({
+      type: 14,
+      label: "Section",
+      components: [],
+    });
     setActionRows(newRows);
   };
 
@@ -115,20 +169,17 @@ const ComponentsBuilder = ({
     setActionRows(newRows);
   };
 
-  const updateButton = (rowIndex: number, compIndex: number, key: string, value: any) => {
+  const updateComponent = (rowIndex: number, compIndex: number, key: string, value: any) => {
     const newRows = [...actionRows];
     const component = newRows[rowIndex].components[compIndex];
     
-    // Handle style change for buttons
-    if (key === 'style') {
+    if (key === 'style' && component.type === 2) {
       if (value === 5) {
-        // Link button - remove custom_id, add url
         delete component.custom_id;
         component.url = component.url || "";
       } else {
-        // Regular button - remove url, add custom_id
         delete component.url;
-        component.custom_id = component.custom_id || `button_${Date.now()}`;
+        component.custom_id = component.custom_id || `btn_${Date.now()}`;
       }
     }
     
@@ -139,6 +190,53 @@ const ComponentsBuilder = ({
     setActionRows(newRows);
   };
 
+  // ID Management
+  const setId = (rowIndex: number, compIndex: number, id: string) => {
+    updateComponent(rowIndex, compIndex, 'custom_id', id);
+  };
+
+  const clearId = (rowIndex: number, compIndex: number) => {
+    const newRows = [...actionRows];
+    delete newRows[rowIndex].components[compIndex].custom_id;
+    setActionRows(newRows);
+  };
+
+  // Accent Color Management
+  const setAccentColor = (color: string) => {
+    setAccentColorState(color);
+  };
+
+  const clearAccentColor = () => {
+    setAccentColorState("");
+  };
+
+  // Spoiler Management
+  const setSpoiler = (rowIndex: number, compIndex: number, spoiler: boolean) => {
+    updateComponent(rowIndex, compIndex, 'spoiler', spoiler);
+  };
+
+  // Array Manipulation
+  const spliceComponents = (rowIndex: number, start: number, deleteCount: number, ...items: any[]) => {
+    const newRows = [...actionRows];
+    newRows[rowIndex].components.splice(start, deleteCount, ...items);
+    setActionRows(newRows);
+  };
+
+  // JSON Export
+  const toJSON = () => {
+    return JSON.stringify({
+      components: actionRows.map(row => ({
+        type: 1,
+        components: row.components
+      })),
+      media: mediaUrls.filter(Boolean),
+      thumbnails: thumbnailUrls.filter(Boolean),
+      attachments: attachments.filter(Boolean),
+      accentColor
+    }, null, 2);
+  };
+
+  // Select Menu Methods
   const addSelectOption = (rowIndex: number, compIndex: number) => {
     const newRows = [...actionRows];
     const select = newRows[rowIndex].components[compIndex];
@@ -147,7 +245,7 @@ const ComponentsBuilder = ({
     
     select.options.push({
       label: "",
-      value: `option_${Date.now()}`,
+      value: `opt_${Date.now()}`,
       description: "",
     });
     setActionRows(newRows);
@@ -169,7 +267,7 @@ const ComponentsBuilder = ({
     setActionRows(newRows);
   };
 
-  // Helper functions for media/thumbnail/attachment lists
+  // Helper functions for lists
   const addToList = (setter: (fn: (arr: string[]) => string[]) => void) => {
     setter(arr => [...arr, ""]);
   };
@@ -187,7 +285,7 @@ const ComponentsBuilder = ({
   };
 
   return (
-    <Card className="p-6 space-y-4">
+    <Card className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Components v2 Builder</h2>
         <Button
@@ -196,14 +294,15 @@ const ComponentsBuilder = ({
           onClick={addActionRow}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Container (Action Row)
+          Add Action Row
         </Button>
       </div>
 
+      {/* Action Rows */}
       {actionRows.map((row, rowIndex) => (
-        <div key={rowIndex} className="border rounded-lg p-4 space-y-4">
+        <Card key={rowIndex} className="p-4 space-y-4 bg-muted/50">
           <div className="flex justify-between items-center">
-            <Label>Container {rowIndex + 1} (Action Row)</Label>
+            <Label className="text-lg font-semibold">Action Row {rowIndex + 1}</Label>
             <Button
               type="button"
               variant="ghost"
@@ -214,22 +313,23 @@ const ComponentsBuilder = ({
             </Button>
           </div>
 
+          {/* Add Component Buttons */}
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => addButton(rowIndex)}
+              onClick={() => addActionRowComponents(rowIndex, 'button')}
               disabled={row.components.length >= 5 || (row.components[0]?.type !== 2 && row.components.length > 0)}
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Button
+              Button
             </Button>
             <Button
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => addSelectMenu(rowIndex, 3)}
+              onClick={() => addActionRowComponents(rowIndex, 'stringSelect')}
               disabled={row.components.length > 0}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -239,7 +339,7 @@ const ComponentsBuilder = ({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => addSelectMenu(rowIndex, 5)}
+              onClick={() => addActionRowComponents(rowIndex, 'userSelect')}
               disabled={row.components.length > 0}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -249,7 +349,7 @@ const ComponentsBuilder = ({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => addSelectMenu(rowIndex, 6)}
+              onClick={() => addActionRowComponents(rowIndex, 'roleSelect')}
               disabled={row.components.length > 0}
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -259,62 +359,65 @@ const ComponentsBuilder = ({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => addSelectMenu(rowIndex, 7)}
-              disabled={row.components.length > 0}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Mentionable Select
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => addSelectMenu(rowIndex, 8)}
+              onClick={() => addActionRowComponents(rowIndex, 'channelSelect')}
               disabled={row.components.length > 0}
             >
               <Plus className="w-4 h-4 mr-2" />
               Channel Select
             </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addSeparator(rowIndex)}
+            >
+              <Minus className="w-4 h-4 mr-2" />
+              Separator
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => addTextDisplay(rowIndex)}
+            >
+              <Type className="w-4 h-4 mr-2" />
+              Text Display
+            </Button>
           </div>
 
+          {/* Render Components */}
           <div className="space-y-3">
-            {row.components.map((comp, compIndex) => {
-              const getComponentTypeName = (type: number) => {
-                switch (type) {
-                  case 2: return "Button";
-                  case 3: return "String Select";
-                  case 5: return "User Select";
-                  case 6: return "Role Select";
-                  case 7: return "Mentionable Select";
-                  case 8: return "Channel Select";
-                  default: return "Component";
-                }
-              };
+            {row.components.map((comp, compIndex) => (
+              <Card key={compIndex} className="p-3 bg-background">
+                <div className="flex justify-between items-start mb-3">
+                  <Label className="font-semibold">
+                    {comp.type === 2 ? 'Button' : 
+                     comp.type === 3 ? 'String Select' :
+                     comp.type === 5 ? 'User Select' :
+                     comp.type === 6 ? 'Role Select' :
+                     comp.type === 8 ? 'Channel Select' :
+                     comp.type === 12 ? 'Separator' :
+                     comp.type === 13 ? 'Text Display' :
+                     `Component ${compIndex + 1}`}
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeComponent(rowIndex, compIndex)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
 
-              return (
-                <div key={compIndex} className="border rounded p-3 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label>{getComponentTypeName(comp.type)} {compIndex + 1}</Label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeComponent(rowIndex, compIndex)}
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-
-                  {comp.type === 2 ? (
-                    <>
-                      <Input
-                        placeholder="Label"
-                        value={comp.label || ""}
-                        onChange={(e) => updateButton(rowIndex, compIndex, "label", e.target.value)}
-                      />
+                {/* Button Component */}
+                {comp.type === 2 && (
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Style</Label>
                       <Select
-                        value={comp.style?.toString() || "1"}
-                        onValueChange={(value) => updateButton(rowIndex, compIndex, "style", parseInt(value))}
+                        value={String(comp.style)}
+                        onValueChange={(v) => updateComponent(rowIndex, compIndex, 'style', Number(v))}
                       >
                         <SelectTrigger>
                           <SelectValue />
@@ -327,228 +430,362 @@ const ComponentsBuilder = ({
                           <SelectItem value="5">Link</SelectItem>
                         </SelectContent>
                       </Select>
-                      {comp.style === 5 && (
+                    </div>
+                    <div>
+                      <Label>Label</Label>
+                      <Input
+                        value={comp.label || ""}
+                        onChange={(e) => updateComponent(rowIndex, compIndex, 'label', e.target.value)}
+                        placeholder="Button text"
+                      />
+                    </div>
+                    {comp.style === 5 ? (
+                      <div>
+                        <Label>URL</Label>
                         <Input
-                          placeholder="URL"
                           value={comp.url || ""}
-                          onChange={(e) => updateButton(rowIndex, compIndex, "url", e.target.value)}
+                          onChange={(e) => updateComponent(rowIndex, compIndex, 'url', e.target.value)}
+                          placeholder="https://..."
                         />
-                      )}
-                      <Input
-                        placeholder="Emoji (optional)"
-                        value={comp.emoji || ""}
-                        onChange={(e) => updateButton(rowIndex, compIndex, "emoji", e.target.value)}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <Input
-                        placeholder="Placeholder"
-                        value={comp.placeholder || ""}
-                        onChange={(e) => updateButton(rowIndex, compIndex, "placeholder", e.target.value)}
-                      />
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-2">
-                          <Label>Min Values</Label>
-                          <Input
-                            type="number"
-                            min="1"
-                            max="25"
-                            value={comp.min_values || 1}
-                            onChange={(e) => updateButton(rowIndex, compIndex, "min_values", parseInt(e.target.value))}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Max Values</Label>
-                          <Input
-                            type="number"
-                            min="1"
-                            max="25"
-                            value={comp.max_values || 1}
-                            onChange={(e) => updateButton(rowIndex, compIndex, "max_values", parseInt(e.target.value))}
-                          />
-                        </div>
                       </div>
-                      {comp.type === 3 && (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <Label>Options</Label>
+                    ) : (
+                      <div>
+                        <Label>Custom ID</Label>
+                        <Input
+                          value={comp.custom_id || ""}
+                          onChange={(e) => updateComponent(rowIndex, compIndex, 'custom_id', e.target.value)}
+                          placeholder="button_id"
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <Label>Emoji</Label>
+                      <Input
+                        value={comp.emoji?.name || ""}
+                        onChange={(e) => updateComponent(rowIndex, compIndex, 'emoji', e.target.value ? { name: e.target.value } : undefined)}
+                        placeholder="😀"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        checked={comp.disabled || false}
+                        onCheckedChange={(checked) => updateComponent(rowIndex, compIndex, 'disabled', checked)}
+                      />
+                      <Label>Disabled</Label>
+                    </div>
+                  </div>
+                )}
+
+                {/* String Select Component */}
+                {comp.type === 3 && (
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Custom ID</Label>
+                      <Input
+                        value={comp.custom_id || ""}
+                        onChange={(e) => updateComponent(rowIndex, compIndex, 'custom_id', e.target.value)}
+                        placeholder="select_id"
+                      />
+                    </div>
+                    <div>
+                      <Label>Placeholder</Label>
+                      <Input
+                        value={comp.placeholder || ""}
+                        onChange={(e) => updateComponent(rowIndex, compIndex, 'placeholder', e.target.value)}
+                        placeholder="Choose an option..."
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label>Min Values</Label>
+                        <Input
+                          type="number"
+                          value={comp.min_values || 1}
+                          onChange={(e) => updateComponent(rowIndex, compIndex, 'min_values', Number(e.target.value))}
+                          min="0"
+                          max="25"
+                        />
+                      </div>
+                      <div>
+                        <Label>Max Values</Label>
+                        <Input
+                          type="number"
+                          value={comp.max_values || 1}
+                          onChange={(e) => updateComponent(rowIndex, compIndex, 'max_values', Number(e.target.value))}
+                          min="1"
+                          max="25"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Options */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <Label>Options</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addSelectOption(rowIndex, compIndex)}
+                          disabled={(comp.options?.length || 0) >= 25}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Option
+                        </Button>
+                      </div>
+                      {comp.options?.map((opt: any, optIndex: number) => (
+                        <Card key={optIndex} className="p-2 bg-muted/30">
+                          <div className="flex justify-between items-start mb-2">
+                            <Label className="text-sm">Option {optIndex + 1}</Label>
                             <Button
                               type="button"
-                              variant="outline"
+                              variant="ghost"
                               size="sm"
-                              onClick={() => addSelectOption(rowIndex, compIndex)}
-                              disabled={comp.options?.length >= 25}
+                              onClick={() => removeSelectOption(rowIndex, compIndex, optIndex)}
                             >
-                              <Plus className="w-4 h-4 mr-2" />
-                              Add Option
+                              <X className="w-3 h-3" />
                             </Button>
                           </div>
-                          {comp.options?.map((opt: any, optIndex: number) => (
-                            <div key={optIndex} className="border rounded p-2 space-y-2">
-                              <div className="flex justify-between">
-                                <Label>Option {optIndex + 1}</Label>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => removeSelectOption(rowIndex, compIndex, optIndex)}
-                                >
-                                  <X className="w-4 h-4" />
-                                </Button>
-                              </div>
-                              <Input
-                                placeholder="Label"
-                                value={opt.label || ""}
-                                onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "label", e.target.value)}
-                              />
-                              <Input
-                                placeholder="Value"
-                                value={opt.value || ""}
-                                onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "value", e.target.value)}
-                              />
-                              <Input
-                                placeholder="Description (optional)"
-                                value={opt.description || ""}
-                                onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "description", e.target.value)}
-                              />
-                              <Input
-                                placeholder="Emoji (optional)"
-                                value={opt.emoji || ""}
-                                onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, "emoji", e.target.value)}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      {comp.type === 8 && (
-                        <div className="space-y-2">
-                          <Label>Channel Types (comma-separated)</Label>
-                          <Input
-                            placeholder="0,2,5 (0=Text, 2=Voice, 5=Announcement)"
-                            value={comp.channel_types?.join(',') || ""}
-                            onChange={(e) => {
-                              const types = e.target.value.split(',').map(t => parseInt(t.trim())).filter(t => !isNaN(t));
-                              updateButton(rowIndex, compIndex, "channel_types", types);
-                            }}
-                          />
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              );
-            })}
+                          <div className="space-y-2">
+                            <Input
+                              value={opt.label || ""}
+                              onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, 'label', e.target.value)}
+                              placeholder="Option label"
+                            />
+                            <Input
+                              value={opt.value || ""}
+                              onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, 'value', e.target.value)}
+                              placeholder="option_value"
+                            />
+                            <Input
+                              value={opt.description || ""}
+                              onChange={(e) => updateSelectOption(rowIndex, compIndex, optIndex, 'description', e.target.value)}
+                              placeholder="Description (optional)"
+                            />
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* User/Role/Channel Select Components */}
+                {(comp.type === 5 || comp.type === 6 || comp.type === 8) && (
+                  <div className="space-y-3">
+                    <div>
+                      <Label>Custom ID</Label>
+                      <Input
+                        value={comp.custom_id || ""}
+                        onChange={(e) => updateComponent(rowIndex, compIndex, 'custom_id', e.target.value)}
+                        placeholder="select_id"
+                      />
+                    </div>
+                    <div>
+                      <Label>Placeholder</Label>
+                      <Input
+                        value={comp.placeholder || ""}
+                        onChange={(e) => updateComponent(rowIndex, compIndex, 'placeholder', e.target.value)}
+                        placeholder={`Select a ${comp.type === 5 ? 'user' : comp.type === 6 ? 'role' : 'channel'}...`}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label>Min Values</Label>
+                        <Input
+                          type="number"
+                          value={comp.min_values || 1}
+                          onChange={(e) => updateComponent(rowIndex, compIndex, 'min_values', Number(e.target.value))}
+                          min="0"
+                          max="25"
+                        />
+                      </div>
+                      <div>
+                        <Label>Max Values</Label>
+                        <Input
+                          type="number"
+                          value={comp.max_values || 1}
+                          onChange={(e) => updateComponent(rowIndex, compIndex, 'max_values', Number(e.target.value))}
+                          min="1"
+                          max="25"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Separator Component */}
+                {comp.type === 12 && (
+                  <div className="text-center text-muted-foreground py-2 border-t">
+                    Separator
+                  </div>
+                )}
+
+                {/* Text Display Component */}
+                {comp.type === 13 && (
+                  <div>
+                    <Label>Content</Label>
+                    <Input
+                      value={comp.content || ""}
+                      onChange={(e) => updateComponent(rowIndex, compIndex, 'content', e.target.value)}
+                      placeholder="Display text..."
+                    />
+                  </div>
+                )}
+              </Card>
+            ))}
           </div>
-        </div>
+        </Card>
       ))}
 
-      {/* Media Gallery, Thumbnails & Attachments */}
-      <div className="border rounded-lg p-4 space-y-4">
-        <h3 className="text-lg font-semibold">Media & Attachments</h3>
-
-        {/* Media Gallery */}
+      {/* Media Gallery Section */}
+      <Card className="p-4 bg-muted/30">
+        <div className="flex items-center justify-between mb-4">
+          <Label className="text-lg font-semibold">Media Gallery</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addMediaGallery}
+          >
+            <Image className="w-4 h-4 mr-2" />
+            Add Image
+          </Button>
+        </div>
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Media Gallery (Image URLs)</Label>
-            <Button type="button" variant="outline" size="sm" onClick={() => addToList(setMediaUrls)}>
-              <Plus className="w-4 h-4 mr-2" /> Add Image
-            </Button>
-          </div>
-          {mediaUrls.length === 0 && (
-            <p className="text-sm text-muted-foreground">Add image URLs to create gallery embeds.</p>
-          )}
-          <div className="space-y-2">
-            {mediaUrls.map((url, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <Input
-                  placeholder="https://example.com/image.png"
-                  value={url}
-                  onChange={(e) => updateInList(setMediaUrls, idx, e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeFromList(setMediaUrls, idx)}
-                  aria-label="Remove image"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
+          {mediaUrls.map((url, idx) => (
+            <div key={idx} className="flex gap-2">
+              <Input
+                value={url}
+                onChange={(e) => updateInList(setMediaUrls, idx, e.target.value)}
+                placeholder="Image URL"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeFromList(setMediaUrls, idx)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Thumbnails Section */}
+      <Card className="p-4 bg-muted/30">
+        <div className="flex items-center justify-between mb-4">
+          <Label className="text-lg font-semibold">Thumbnails</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => addToList(setThumbnailUrls)}
+          >
+            <Image className="w-4 h-4 mr-2" />
+            Add Thumbnail
+          </Button>
+        </div>
+        <div className="space-y-2">
+          {thumbnailUrls.map((url, idx) => (
+            <div key={idx} className="flex gap-2">
+              <Input
+                value={url}
+                onChange={(e) => updateInList(setThumbnailUrls, idx, e.target.value)}
+                placeholder="Thumbnail URL"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeFromList(setThumbnailUrls, idx)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Attachments Section */}
+      <Card className="p-4 bg-muted/30">
+        <div className="flex items-center justify-between mb-4">
+          <Label className="text-lg font-semibold">File Attachments</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addFileComponents}
+          >
+            <FileIcon className="w-4 h-4 mr-2" />
+            Add File
+          </Button>
+        </div>
+        <div className="space-y-2">
+          {attachments.map((url, idx) => (
+            <div key={idx} className="flex gap-2">
+              <Input
+                value={url}
+                onChange={(e) => updateInList(setAttachments, idx, e.target.value)}
+                placeholder="File URL"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => removeFromList(setAttachments, idx)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Accent Color Section */}
+      <Card className="p-4 bg-muted/30">
+        <div className="space-y-2">
+          <Label>Accent Color (Optional)</Label>
+          <div className="flex gap-2">
+            <Input
+              type="color"
+              value={accentColor || "#5865F2"}
+              onChange={(e) => setAccentColor(e.target.value)}
+              className="w-20"
+            />
+            <Input
+              value={accentColor}
+              onChange={(e) => setAccentColor(e.target.value)}
+              placeholder="#5865F2"
+              className="flex-1"
+            />
+            {accentColor && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={clearAccentColor}
+              >
+                Clear
+              </Button>
+            )}
           </div>
         </div>
+      </Card>
 
-        {/* Thumbnails */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Thumbnails (Thumbnail URLs)</Label>
-            <Button type="button" variant="outline" size="sm" onClick={() => addToList(setThumbnailUrls)}>
-              <Plus className="w-4 h-4 mr-2" /> Add Thumbnail
-            </Button>
-          </div>
-          {thumbnailUrls.length === 0 && (
-            <p className="text-sm text-muted-foreground">Add thumbnail URLs. Each will be sent as a small embed thumbnail.</p>
-          )}
-          <div className="space-y-2">
-            {thumbnailUrls.map((url, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <Input
-                  placeholder="https://example.com/thumb.png"
-                  value={url}
-                  onChange={(e) => updateInList(setThumbnailUrls, idx, e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeFromList(setThumbnailUrls, idx)}
-                  aria-label="Remove thumbnail"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Attachments */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label>Attachments (File URLs)</Label>
-            <Button type="button" variant="outline" size="sm" onClick={() => addToList(setAttachments)}>
-              <Plus className="w-4 h-4 mr-2" /> Add Attachment
-            </Button>
-          </div>
-          {attachments.length === 0 && (
-            <p className="text-sm text-muted-foreground">
-              Discord webhooks require multipart for real file uploads. These URLs will be appended to the message content.
-            </p>
-          )}
-          <div className="space-y-2">
-            {attachments.map((url, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <Input
-                  placeholder="https://example.com/file.pdf"
-                  value={url}
-                  onChange={(e) => updateInList(setAttachments, idx, e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeFromList(setAttachments, idx)}
-                  aria-label="Remove attachment"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Export JSON */}
+      <div className="flex justify-center">
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={() => {
+            const json = toJSON();
+            navigator.clipboard.writeText(json);
+          }}
+        >
+          Copy JSON
+        </Button>
       </div>
-
     </Card>
   );
 };

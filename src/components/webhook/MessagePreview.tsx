@@ -19,6 +19,16 @@ const MessagePreview = ({ content, embed, components, galleryEmbeds = [] }: Mess
     }
   };
 
+  const getSelectTypeName = (type: number) => {
+    switch (type) {
+      case 3: return "String Select";
+      case 5: return "User Select";
+      case 6: return "Role Select";
+      case 8: return "Channel Select";
+      default: return "Select Menu";
+    }
+  };
+
   return (
     <Card className="p-6 bg-[#313338] border-[#1e1f22]">
       <div className="space-y-4">
@@ -140,24 +150,36 @@ const MessagePreview = ({ content, embed, components, galleryEmbeds = [] }: Mess
         {components && components.length > 0 && (
           <div className="space-y-2">
             {components.map((row: any, rowIndex: number) => (
-              <div key={rowIndex} className="flex flex-wrap gap-2">
-                {row.components.map((comp: any, compIndex: number) => {
+              <div key={rowIndex} className="flex flex-col gap-2">
+                {row.components?.map((comp: any, compIndex: number) => {
                   if (comp.type === 2) {
                     return (
                       <button
                         key={compIndex}
-                        className={`px-4 py-2 rounded text-sm font-medium transition-colors ${getButtonStyle(comp.style)}`}
-                        disabled
+                        className={`px-4 py-2 rounded text-sm font-medium transition-colors inline-flex items-center justify-center ${getButtonStyle(comp.style)}`}
+                        disabled={comp.disabled}
                       >
+                        {comp.emoji?.name && <span className="mr-2">{comp.emoji.name}</span>}
                         {comp.label || "Button"}
                       </button>
                     );
-                  } else if (comp.type === 3 || comp.type === 5 || comp.type === 6 || comp.type === 7 || comp.type === 8) {
+                  } else if (comp.type === 3 || comp.type === 5 || comp.type === 6 || comp.type === 8) {
                     return (
-                      <div key={compIndex} className="w-full bg-[#1e1f22] rounded px-3 py-2">
-                        <div className="text-[#949BA4] text-sm">
-                          {comp.placeholder || "Select an option"}
-                        </div>
+                      <div key={compIndex} className="w-full bg-[#1e1f22] rounded px-4 py-2.5 text-[#DBDEE1] text-sm flex items-center justify-between">
+                        <span className="text-[#949BA4]">{comp.placeholder || getSelectTypeName(comp.type)}</span>
+                        <svg className="w-4 h-4 text-[#949BA4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    );
+                  } else if (comp.type === 12) {
+                    return (
+                      <div key={compIndex} className="w-full border-t border-[#4E5058] my-2" />
+                    );
+                  } else if (comp.type === 13) {
+                    return (
+                      <div key={compIndex} className="text-[#DBDEE1] text-sm py-1">
+                        {comp.content || "Text display"}
                       </div>
                     );
                   }
