@@ -81,6 +81,7 @@ export type Database = {
           rating: number
           review_text: string
           server_name: string | null
+          show_discord_username: boolean | null
           updated_at: string
           user_id: string | null
         }
@@ -93,6 +94,7 @@ export type Database = {
           rating: number
           review_text: string
           server_name?: string | null
+          show_discord_username?: boolean | null
           updated_at?: string
           user_id?: string | null
         }
@@ -105,6 +107,7 @@ export type Database = {
           rating?: number
           review_text?: string
           server_name?: string | null
+          show_discord_username?: boolean | null
           updated_at?: string
           user_id?: string | null
         }
