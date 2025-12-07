@@ -182,6 +182,49 @@ const MessagePreview = ({ content, embed, components, galleryEmbeds = [] }: Mess
                         {comp.content || "Text display"}
                       </div>
                     );
+                  } else if (comp.type === 17) {
+                    // Container component
+                    return (
+                      <div 
+                        key={compIndex} 
+                        className="border-l-4 rounded bg-[#2B2D31] p-3 space-y-2"
+                        style={{ borderColor: comp.accent_color || '#5865F2' }}
+                      >
+                        {comp.spoiler && (
+                          <div className="text-xs text-[#949BA4] mb-1">⚠️ Spoiler</div>
+                        )}
+                        {comp.content && (
+                          <div className="text-[#DBDEE1] text-sm whitespace-pre-wrap">
+                            {comp.content}
+                          </div>
+                        )}
+                        {comp.components?.map((inner: any, innerIdx: number) => {
+                          if (inner.type === 2) {
+                            return (
+                              <button
+                                key={innerIdx}
+                                className={`px-3 py-1.5 rounded text-xs font-medium transition-colors inline-flex items-center justify-center ${getButtonStyle(inner.style)}`}
+                                disabled={inner.disabled}
+                              >
+                                {inner.emoji?.name && <span className="mr-1">{inner.emoji.name}</span>}
+                                {inner.label || "Button"}
+                              </button>
+                            );
+                          } else if (inner.type === 13) {
+                            return (
+                              <div key={innerIdx} className="text-[#DBDEE1] text-sm">
+                                {inner.content || "Text"}
+                              </div>
+                            );
+                          } else if (inner.type === 12) {
+                            return (
+                              <div key={innerIdx} className="border-t border-[#4E5058] my-1" />
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
+                    );
                   }
                   return null;
                 })}

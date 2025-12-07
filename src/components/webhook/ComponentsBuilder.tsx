@@ -140,6 +140,15 @@ const ComponentsBuilder = ({
               max_values: 1,
             });
             break;
+          case 'container':
+            comps.push({
+              type: 17,
+              accent_color: undefined,
+              spoiler: false,
+              components: [],
+              content: "",
+            });
+            break;
         }
         
         return { ...row, components: comps };
@@ -334,6 +343,66 @@ const ComponentsBuilder = ({
     toast.success("JSON copied to clipboard");
   }, [toJSON]);
 
+  const addContainerComponent = useCallback((rowIndex: number, compIndex: number, innerType: string) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      const newComps = row.components.map((comp, j) => {
+        if (j !== compIndex || comp.type !== 17) return comp;
+        const innerComps = [...(comp.components || [])];
+        
+        switch (innerType) {
+          case 'button':
+            if (innerComps.length >= 5) return comp;
+            innerComps.push({
+              type: 2,
+              style: 1,
+              label: "",
+              custom_id: `btn_${Date.now()}`,
+            });
+            break;
+          case 'textDisplay':
+            innerComps.push({ type: 13, content: "" });
+            break;
+          case 'separator':
+            innerComps.push({ type: 12, divider: true });
+            break;
+        }
+        
+        return { ...comp, components: innerComps };
+      });
+      return { ...row, components: newComps };
+    }));
+  }, []);
+
+  const removeContainerComponent = useCallback((rowIndex: number, compIndex: number, innerIndex: number) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      const newComps = row.components.map((comp, j) => {
+        if (j !== compIndex || comp.type !== 17) return comp;
+        return {
+          ...comp,
+          components: comp.components?.filter((_: any, k: number) => k !== innerIndex) || []
+        };
+      });
+      return { ...row, components: newComps };
+    }));
+  }, []);
+
+  const updateContainerComponent = useCallback((rowIndex: number, compIndex: number, innerIndex: number, key: string, value: any) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      const newComps = row.components.map((comp, j) => {
+        if (j !== compIndex || comp.type !== 17) return comp;
+        const innerComps = comp.components?.map((inner: any, k: number) => {
+          if (k !== innerIndex) return inner;
+          return { ...inner, [key]: value };
+        }) || [];
+        return { ...comp, components: innerComps };
+      });
+      return { ...row, components: newComps };
+    }));
+  }, []);
+
   const getComponentLabel = (type: number) => {
     switch (type) {
       case 2: return 'Button';
@@ -344,6 +413,7 @@ const ComponentsBuilder = ({
       case 12: return 'Separator';
       case 13: return 'Text Display';
       case 14: return 'Section';
+      case 17: return 'Container';
       default: return 'Component';
     }
   };
@@ -434,6 +504,10 @@ const ComponentsBuilder = ({
             <Button type="button" variant="outline" size="sm" onClick={() => addTextDisplay(rowIndex)}>
               <Type className="w-4 h-4 mr-2" />
               Text Display
+            </Button>
+            <Button type="button" variant="outline" size="sm" onClick={() => addActionRowComponents(rowIndex, 'container')}>
+              <Plus className="w-4 h-4 mr-2" />
+              Container
             </Button>
           </div>
 
@@ -667,6 +741,146 @@ const ComponentsBuilder = ({
                       onChange={(e) => updateComponent(rowIndex, compIndex, 'content', e.target.value)}
                       placeholder="Display text..."
                     />
+                  </div>
+                )}
+
+                {/* Container Component */}
+                {comp.type === 17 && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label>Container Content (Text)</Label>
+                      <Input
+                        value={comp.content || ""}
+                        onChange={(e) => updateComponent(rowIndex, compIndex, 'content', e.target.value)}
+                        placeholder="Text content inside container..."
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Accent Color</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            type="color"
+                            value={comp.accent_color || "#5865F2"}
+                            onChange={(e) => updateComponent(rowIndex, compIndex, 'accent_color', e.target.value)}
+                            className="w-14 h-10 p-1 cursor-pointer"
+                          />
+                          <Input
+                            value={comp.accent_color || ""}
+                            onChange={(e) => updateComponent(rowIndex, compIndex, 'accent_color', e.target.value)}
+                            placeholder="#5865F2"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2 pt-6">
+                        <Checkbox
+                          checked={comp.spoiler || false}
+                          onCheckedChange={(checked) => updateComponent(rowIndex, compIndex, 'spoiler', checked)}
+                        />
+                        <Label>Spoiler</Label>
+                      </div>
+                    </div>
+
+                    {/* Container Inner Components */}
+                    <div className="space-y-2 border-l-2 border-primary/30 pl-4">
+                      <div className="flex items-center justify-between">
+                        <Label className="font-semibold text-sm">Inner Components</Label>
+                        <div className="flex gap-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addContainerComponent(rowIndex, compIndex, 'button')}
+                          >
+                            <Plus className="w-3 h-3 mr-1" />
+                            Button
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addContainerComponent(rowIndex, compIndex, 'textDisplay')}
+                          >
+                            <Type className="w-3 h-3 mr-1" />
+                            Text
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addContainerComponent(rowIndex, compIndex, 'separator')}
+                          >
+                            <Minus className="w-3 h-3 mr-1" />
+                            Sep
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Render inner components */}
+                      {comp.components?.map((inner: any, innerIdx: number) => (
+                        <Card key={innerIdx} className="p-2 bg-muted/50">
+                          <div className="flex justify-between items-center mb-2">
+                            <Label className="text-xs font-medium">
+                              {inner.type === 2 ? 'Button' : inner.type === 13 ? 'Text Display' : 'Separator'}
+                            </Label>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeContainerComponent(rowIndex, compIndex, innerIdx)}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          
+                          {inner.type === 2 && (
+                            <div className="space-y-2">
+                              <Select
+                                value={String(inner.style || 1)}
+                                onValueChange={(v) => updateContainerComponent(rowIndex, compIndex, innerIdx, 'style', Number(v))}
+                              >
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="1">Primary</SelectItem>
+                                  <SelectItem value="2">Secondary</SelectItem>
+                                  <SelectItem value="3">Success</SelectItem>
+                                  <SelectItem value="4">Danger</SelectItem>
+                                  <SelectItem value="5">Link</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Input
+                                value={inner.label || ""}
+                                onChange={(e) => updateContainerComponent(rowIndex, compIndex, innerIdx, 'label', e.target.value)}
+                                placeholder="Button label"
+                                className="h-8 text-xs"
+                              />
+                            </div>
+                          )}
+                          
+                          {inner.type === 13 && (
+                            <Input
+                              value={inner.content || ""}
+                              onChange={(e) => updateContainerComponent(rowIndex, compIndex, innerIdx, 'content', e.target.value)}
+                              placeholder="Text content..."
+                              className="h-8 text-xs"
+                            />
+                          )}
+                          
+                          {inner.type === 12 && (
+                            <div className="text-xs text-muted-foreground text-center py-1 border-t">
+                              Divider
+                            </div>
+                          )}
+                        </Card>
+                      ))}
+
+                      {(!comp.components || comp.components.length === 0) && (
+                        <p className="text-xs text-muted-foreground">No inner components added</p>
+                      )}
+                    </div>
                   </div>
                 )}
               </Card>
