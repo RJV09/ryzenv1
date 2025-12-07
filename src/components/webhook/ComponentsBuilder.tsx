@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, X, FileIcon, Image, Type, Minus } from "lucide-react";
+import { Plus, X, FileIcon, Image, Type, Minus, Copy, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface ComponentsBuilderProps {
   onComponentsChange: (components: any[]) => void;
@@ -26,6 +27,20 @@ const ComponentsBuilder = ({
   const [attachments, setAttachments] = useState<string[]>([]);
   const [accentColor, setAccentColorState] = useState<string>("");
 
+  // Use refs to avoid dependency issues
+  const onComponentsChangeRef = useRef(onComponentsChange);
+  const onMediaChangeRef = useRef(onMediaChange);
+  const onThumbnailsChangeRef = useRef(onThumbnailsChange);
+  const onAttachmentsChangeRef = useRef(onAttachmentsChange);
+
+  useEffect(() => {
+    onComponentsChangeRef.current = onComponentsChange;
+    onMediaChangeRef.current = onMediaChange;
+    onThumbnailsChangeRef.current = onThumbnailsChange;
+    onAttachmentsChangeRef.current = onAttachmentsChange;
+  });
+
+  // Emit components when action rows change
   useEffect(() => {
     const formattedRows = actionRows
       .filter(row => row.components.length > 0)
@@ -33,197 +48,274 @@ const ComponentsBuilder = ({
         type: 1,
         components: row.components
       }));
-    
-    onComponentsChange(formattedRows);
-  }, [actionRows, onComponentsChange]);
+    onComponentsChangeRef.current(formattedRows);
+  }, [actionRows]);
 
+  // Emit media embeds
   useEffect(() => {
     const embeds = mediaUrls
       .map(u => u.trim())
       .filter(Boolean)
       .map(url => ({ image: { url } }));
-    onMediaChange?.(embeds);
-  }, [mediaUrls, onMediaChange]);
+    onMediaChangeRef.current?.(embeds);
+  }, [mediaUrls]);
 
+  // Emit thumbnail embeds
   useEffect(() => {
     const embeds = thumbnailUrls
       .map(u => u.trim())
       .filter(Boolean)
       .map(url => ({ thumbnail: { url } }));
-    onThumbnailsChange?.(embeds);
-  }, [thumbnailUrls, onThumbnailsChange]);
+    onThumbnailsChangeRef.current?.(embeds);
+  }, [thumbnailUrls]);
 
+  // Emit attachments
   useEffect(() => {
-    onAttachmentsChange?.(attachments.map(u => u.trim()).filter(Boolean));
-  }, [attachments, onAttachmentsChange]);
+    onAttachmentsChangeRef.current?.(attachments.map(u => u.trim()).filter(Boolean));
+  }, [attachments]);
 
   // Action Row Methods
-  const addActionRow = () => {
-    setActionRows([...actionRows, { type: 1, components: [] }]);
-  };
+  const addActionRow = useCallback(() => {
+    setActionRows(prev => [...prev, { type: 1, components: [] }]);
+  }, []);
 
-  const removeActionRow = (index: number) => {
-    setActionRows(actionRows.filter((_, i) => i !== index));
-  };
+  const removeActionRow = useCallback((index: number) => {
+    setActionRows(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
-  const addActionRowComponents = (rowIndex: number, componentType: string) => {
-    const newRows = [...actionRows];
-    const row = newRows[rowIndex];
-
-    switch (componentType) {
-      case 'button':
-        if (row.components.length >= 5) return;
-        row.components.push({
-          type: 2,
-          style: 1,
-          label: "",
-          custom_id: `btn_${Date.now()}`,
-        });
-        break;
-      case 'stringSelect':
-        if (row.components.length > 0) return;
-        row.components.push({
-          type: 3,
-          custom_id: `select_${Date.now()}`,
-          placeholder: "Select an option",
-          options: [],
-          min_values: 1,
-          max_values: 1,
-        });
-        break;
-      case 'userSelect':
-        if (row.components.length > 0) return;
-        row.components.push({
-          type: 5,
-          custom_id: `user_${Date.now()}`,
-          placeholder: "Select a user",
-          min_values: 1,
-          max_values: 1,
-        });
-        break;
-      case 'roleSelect':
-        if (row.components.length > 0) return;
-        row.components.push({
-          type: 6,
-          custom_id: `role_${Date.now()}`,
-          placeholder: "Select a role",
-          min_values: 1,
-          max_values: 1,
-        });
-        break;
-      case 'channelSelect':
-        if (row.components.length > 0) return;
-        row.components.push({
-          type: 8,
-          custom_id: `channel_${Date.now()}`,
-          placeholder: "Select a channel",
-          min_values: 1,
-          max_values: 1,
-        });
-        break;
-    }
-    
-    setActionRows(newRows);
-  };
-
-  // Component Methods
-  const addSeparator = (rowIndex: number) => {
-    const newRows = [...actionRows];
-    newRows[rowIndex].components.push({
-      type: 12,
-      divider: true,
+  const addActionRowComponents = useCallback((rowIndex: number, componentType: string) => {
+    setActionRows(prev => {
+      const newRows = prev.map((row, i) => {
+        if (i !== rowIndex) return row;
+        const comps = [...row.components];
+        
+        switch (componentType) {
+          case 'button':
+            if (comps.length >= 5) return row;
+            comps.push({
+              type: 2,
+              style: 1,
+              label: "",
+              custom_id: `btn_${Date.now()}`,
+            });
+            break;
+          case 'stringSelect':
+            if (comps.length > 0) return row;
+            comps.push({
+              type: 3,
+              custom_id: `select_${Date.now()}`,
+              placeholder: "Select an option",
+              options: [],
+              min_values: 1,
+              max_values: 1,
+            });
+            break;
+          case 'userSelect':
+            if (comps.length > 0) return row;
+            comps.push({
+              type: 5,
+              custom_id: `user_${Date.now()}`,
+              placeholder: "Select a user",
+              min_values: 1,
+              max_values: 1,
+            });
+            break;
+          case 'roleSelect':
+            if (comps.length > 0) return row;
+            comps.push({
+              type: 6,
+              custom_id: `role_${Date.now()}`,
+              placeholder: "Select a role",
+              min_values: 1,
+              max_values: 1,
+            });
+            break;
+          case 'channelSelect':
+            if (comps.length > 0) return row;
+            comps.push({
+              type: 8,
+              custom_id: `channel_${Date.now()}`,
+              placeholder: "Select a channel",
+              min_values: 1,
+              max_values: 1,
+            });
+            break;
+        }
+        
+        return { ...row, components: comps };
+      });
+      return newRows;
     });
-    setActionRows(newRows);
-  };
+  }, []);
 
-  const addTextDisplay = (rowIndex: number) => {
-    const newRows = [...actionRows];
-    newRows[rowIndex].components.push({
-      type: 13,
-      content: "",
-    });
-    setActionRows(newRows);
-  };
+  const addSeparator = useCallback((rowIndex: number) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      return {
+        ...row,
+        components: [...row.components, { type: 12, divider: true }]
+      };
+    }));
+  }, []);
 
-  const addFileComponents = () => {
-    addToList(setAttachments);
-  };
+  const addTextDisplay = useCallback((rowIndex: number) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      return {
+        ...row,
+        components: [...row.components, { type: 13, content: "" }]
+      };
+    }));
+  }, []);
 
-  const addMediaGallery = () => {
-    addToList(setMediaUrls);
-  };
+  const addSectionComponents = useCallback((rowIndex: number) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      return {
+        ...row,
+        components: [...row.components, { type: 14, label: "Section", components: [] }]
+      };
+    }));
+  }, []);
 
-  const addSectionComponents = (rowIndex: number) => {
-    const newRows = [...actionRows];
-    newRows[rowIndex].components.push({
-      type: 14,
-      label: "Section",
-      components: [],
-    });
-    setActionRows(newRows);
-  };
+  const removeComponent = useCallback((rowIndex: number, compIndex: number) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      return {
+        ...row,
+        components: row.components.filter((_, j) => j !== compIndex)
+      };
+    }));
+  }, []);
 
-  const removeComponent = (rowIndex: number, compIndex: number) => {
-    const newRows = [...actionRows];
-    newRows[rowIndex].components = newRows[rowIndex].components.filter((_, i) => i !== compIndex);
-    setActionRows(newRows);
-  };
+  const updateComponent = useCallback((rowIndex: number, compIndex: number, key: string, value: any) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      const newComps = row.components.map((comp, j) => {
+        if (j !== compIndex) return comp;
+        
+        const updated = { ...comp };
+        
+        if (key === 'style' && comp.type === 2) {
+          if (value === 5) {
+            delete updated.custom_id;
+            updated.url = updated.url || "";
+          } else {
+            delete updated.url;
+            updated.custom_id = updated.custom_id || `btn_${Date.now()}`;
+          }
+        }
+        
+        updated[key] = value;
+        return updated;
+      });
+      return { ...row, components: newComps };
+    }));
+  }, []);
 
-  const updateComponent = (rowIndex: number, compIndex: number, key: string, value: any) => {
-    const newRows = [...actionRows];
-    const component = newRows[rowIndex].components[compIndex];
-    
-    if (key === 'style' && component.type === 2) {
-      if (value === 5) {
-        delete component.custom_id;
-        component.url = component.url || "";
-      } else {
-        delete component.url;
-        component.custom_id = component.custom_id || `btn_${Date.now()}`;
-      }
-    }
-    
-    newRows[rowIndex].components[compIndex] = {
-      ...component,
-      [key]: value
-    };
-    setActionRows(newRows);
-  };
+  const addSelectOption = useCallback((rowIndex: number, compIndex: number) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      const newComps = row.components.map((comp, j) => {
+        if (j !== compIndex) return comp;
+        const options = comp.options || [];
+        if (options.length >= 25) return comp;
+        return {
+          ...comp,
+          options: [...options, { label: "", value: `opt_${Date.now()}`, description: "" }]
+        };
+      });
+      return { ...row, components: newComps };
+    }));
+  }, []);
 
-  // ID Management
-  const setId = (rowIndex: number, compIndex: number, id: string) => {
-    updateComponent(rowIndex, compIndex, 'custom_id', id);
-  };
+  const removeSelectOption = useCallback((rowIndex: number, compIndex: number, optIndex: number) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      const newComps = row.components.map((comp, j) => {
+        if (j !== compIndex) return comp;
+        return {
+          ...comp,
+          options: comp.options?.filter((_: any, k: number) => k !== optIndex) || []
+        };
+      });
+      return { ...row, components: newComps };
+    }));
+  }, []);
 
-  const clearId = (rowIndex: number, compIndex: number) => {
-    const newRows = [...actionRows];
-    delete newRows[rowIndex].components[compIndex].custom_id;
-    setActionRows(newRows);
-  };
+  const updateSelectOption = useCallback((rowIndex: number, compIndex: number, optIndex: number, key: string, value: any) => {
+    setActionRows(prev => prev.map((row, i) => {
+      if (i !== rowIndex) return row;
+      const newComps = row.components.map((comp, j) => {
+        if (j !== compIndex) return comp;
+        const newOptions = comp.options?.map((opt: any, k: number) => {
+          if (k !== optIndex) return opt;
+          return { ...opt, [key]: value };
+        }) || [];
+        return { ...comp, options: newOptions };
+      });
+      return { ...row, components: newComps };
+    }));
+  }, []);
 
-  // Accent Color Management
-  const setAccentColor = (color: string) => {
+  // Media/Attachment helpers
+  const addMediaGallery = useCallback(() => {
+    setMediaUrls(prev => [...prev, ""]);
+  }, []);
+
+  const addFileComponents = useCallback(() => {
+    setAttachments(prev => [...prev, ""]);
+  }, []);
+
+  const addThumbnail = useCallback(() => {
+    setThumbnailUrls(prev => [...prev, ""]);
+  }, []);
+
+  const updateMediaUrl = useCallback((index: number, value: string) => {
+    setMediaUrls(prev => prev.map((url, i) => i === index ? value : url));
+  }, []);
+
+  const removeMediaUrl = useCallback((index: number) => {
+    setMediaUrls(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const updateThumbnailUrl = useCallback((index: number, value: string) => {
+    setThumbnailUrls(prev => prev.map((url, i) => i === index ? value : url));
+  }, []);
+
+  const removeThumbnailUrl = useCallback((index: number) => {
+    setThumbnailUrls(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const updateAttachment = useCallback((index: number, value: string) => {
+    setAttachments(prev => prev.map((url, i) => i === index ? value : url));
+  }, []);
+
+  const removeAttachment = useCallback((index: number) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  // Accent Color
+  const setAccentColor = useCallback((color: string) => {
     setAccentColorState(color);
-  };
+  }, []);
 
-  const clearAccentColor = () => {
+  const clearAccentColor = useCallback(() => {
     setAccentColorState("");
-  };
+  }, []);
 
-  // Spoiler Management
-  const setSpoiler = (rowIndex: number, compIndex: number, spoiler: boolean) => {
-    updateComponent(rowIndex, compIndex, 'spoiler', spoiler);
-  };
+  // Clear all
+  const clearAll = useCallback(() => {
+    setActionRows([]);
+    setMediaUrls([]);
+    setThumbnailUrls([]);
+    setAttachments([]);
+    setAccentColorState("");
+    toast.success("Cleared all components");
+  }, []);
 
-  // Array Manipulation
-  const spliceComponents = (rowIndex: number, start: number, deleteCount: number, ...items: any[]) => {
-    const newRows = [...actionRows];
-    newRows[rowIndex].components.splice(start, deleteCount, ...items);
-    setActionRows(newRows);
-  };
-
-  // JSON Export
-  const toJSON = () => {
+  // Export JSON
+  const toJSON = useCallback(() => {
     return JSON.stringify({
       components: actionRows.map(row => ({
         type: 1,
@@ -232,70 +324,45 @@ const ComponentsBuilder = ({
       media: mediaUrls.filter(Boolean),
       thumbnails: thumbnailUrls.filter(Boolean),
       attachments: attachments.filter(Boolean),
-      accentColor
+      accentColor: accentColor || undefined
     }, null, 2);
-  };
+  }, [actionRows, mediaUrls, thumbnailUrls, attachments, accentColor]);
 
-  // Select Menu Methods
-  const addSelectOption = (rowIndex: number, compIndex: number) => {
-    const newRows = [...actionRows];
-    const select = newRows[rowIndex].components[compIndex];
-    if (!select.options) select.options = [];
-    if (select.options.length >= 25) return;
-    
-    select.options.push({
-      label: "",
-      value: `opt_${Date.now()}`,
-      description: "",
-    });
-    setActionRows(newRows);
-  };
+  const copyJSON = useCallback(() => {
+    const json = toJSON();
+    navigator.clipboard.writeText(json);
+    toast.success("JSON copied to clipboard");
+  }, [toJSON]);
 
-  const removeSelectOption = (rowIndex: number, compIndex: number, optIndex: number) => {
-    const newRows = [...actionRows];
-    newRows[rowIndex].components[compIndex].options = 
-      newRows[rowIndex].components[compIndex].options.filter((_: any, i: number) => i !== optIndex);
-    setActionRows(newRows);
-  };
-
-  const updateSelectOption = (rowIndex: number, compIndex: number, optIndex: number, key: string, value: any) => {
-    const newRows = [...actionRows];
-    newRows[rowIndex].components[compIndex].options[optIndex] = {
-      ...newRows[rowIndex].components[compIndex].options[optIndex],
-      [key]: value
-    };
-    setActionRows(newRows);
-  };
-
-  // Helper functions for lists
-  const addToList = (setter: (fn: (arr: string[]) => string[]) => void) => {
-    setter(arr => [...arr, ""]);
-  };
-
-  const removeFromList = (setter: (fn: (arr: string[]) => string[]) => void, index: number) => {
-    setter(arr => arr.filter((_, i) => i !== index));
-  };
-
-  const updateInList = (setter: (fn: (arr: string[]) => string[]) => void, index: number, value: string) => {
-    setter(arr => {
-      const next = [...arr];
-      next[index] = value;
-      return next;
-    });
+  const getComponentLabel = (type: number) => {
+    switch (type) {
+      case 2: return 'Button';
+      case 3: return 'String Select';
+      case 5: return 'User Select';
+      case 6: return 'Role Select';
+      case 8: return 'Channel Select';
+      case 12: return 'Separator';
+      case 13: return 'Text Display';
+      case 14: return 'Section';
+      default: return 'Component';
+    }
   };
 
   return (
     <Card className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Components v2 Builder</h2>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={addActionRow}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Add Action Row
-        </Button>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" onClick={addActionRow}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Action Row
+          </Button>
+          {actionRows.length > 0 && (
+            <Button type="button" variant="destructive" size="icon" onClick={clearAll}>
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Action Rows */}
@@ -303,12 +370,7 @@ const ComponentsBuilder = ({
         <Card key={rowIndex} className="p-4 space-y-4 bg-muted/50">
           <div className="flex justify-between items-center">
             <Label className="text-lg font-semibold">Action Row {rowIndex + 1}</Label>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => removeActionRow(rowIndex)}
-            >
+            <Button type="button" variant="ghost" size="sm" onClick={() => removeActionRow(rowIndex)}>
               <X className="w-4 h-4" />
             </Button>
           </div>
@@ -320,7 +382,7 @@ const ComponentsBuilder = ({
               variant="outline"
               size="sm"
               onClick={() => addActionRowComponents(rowIndex, 'button')}
-              disabled={row.components.length >= 5 || (row.components[0]?.type !== 2 && row.components.length > 0)}
+              disabled={row.components.length >= 5 || (row.components.length > 0 && row.components[0]?.type !== 2)}
             >
               <Plus className="w-4 h-4 mr-2" />
               Button
@@ -365,21 +427,11 @@ const ComponentsBuilder = ({
               <Plus className="w-4 h-4 mr-2" />
               Channel Select
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => addSeparator(rowIndex)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => addSeparator(rowIndex)}>
               <Minus className="w-4 h-4 mr-2" />
               Separator
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => addTextDisplay(rowIndex)}
-            >
+            <Button type="button" variant="outline" size="sm" onClick={() => addTextDisplay(rowIndex)}>
               <Type className="w-4 h-4 mr-2" />
               Text Display
             </Button>
@@ -390,22 +442,8 @@ const ComponentsBuilder = ({
             {row.components.map((comp, compIndex) => (
               <Card key={compIndex} className="p-3 bg-background">
                 <div className="flex justify-between items-start mb-3">
-                  <Label className="font-semibold">
-                    {comp.type === 2 ? 'Button' : 
-                     comp.type === 3 ? 'String Select' :
-                     comp.type === 5 ? 'User Select' :
-                     comp.type === 6 ? 'Role Select' :
-                     comp.type === 8 ? 'Channel Select' :
-                     comp.type === 12 ? 'Separator' :
-                     comp.type === 13 ? 'Text Display' :
-                     `Component ${compIndex + 1}`}
-                  </Label>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeComponent(rowIndex, compIndex)}
-                  >
+                  <Label className="font-semibold">{getComponentLabel(comp.type)}</Label>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removeComponent(rowIndex, compIndex)}>
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
@@ -416,7 +454,7 @@ const ComponentsBuilder = ({
                     <div>
                       <Label>Style</Label>
                       <Select
-                        value={String(comp.style)}
+                        value={String(comp.style || 1)}
                         onValueChange={(v) => updateComponent(rowIndex, compIndex, 'style', Number(v))}
                       >
                         <SelectTrigger>
@@ -616,7 +654,7 @@ const ComponentsBuilder = ({
                 {/* Separator Component */}
                 {comp.type === 12 && (
                   <div className="text-center text-muted-foreground py-2 border-t">
-                    Separator
+                    Separator divider
                   </div>
                 )}
 
@@ -641,12 +679,7 @@ const ComponentsBuilder = ({
       <Card className="p-4 bg-muted/30">
         <div className="flex items-center justify-between mb-4">
           <Label className="text-lg font-semibold">Media Gallery</Label>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addMediaGallery}
-          >
+          <Button type="button" variant="outline" size="sm" onClick={addMediaGallery}>
             <Image className="w-4 h-4 mr-2" />
             Add Image
           </Button>
@@ -656,19 +689,17 @@ const ComponentsBuilder = ({
             <div key={idx} className="flex gap-2">
               <Input
                 value={url}
-                onChange={(e) => updateInList(setMediaUrls, idx, e.target.value)}
+                onChange={(e) => updateMediaUrl(idx, e.target.value)}
                 placeholder="Image URL"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removeFromList(setMediaUrls, idx)}
-              >
+              <Button type="button" variant="ghost" size="sm" onClick={() => removeMediaUrl(idx)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
           ))}
+          {mediaUrls.length === 0 && (
+            <p className="text-sm text-muted-foreground">No images added yet</p>
+          )}
         </div>
       </Card>
 
@@ -676,12 +707,7 @@ const ComponentsBuilder = ({
       <Card className="p-4 bg-muted/30">
         <div className="flex items-center justify-between mb-4">
           <Label className="text-lg font-semibold">Thumbnails</Label>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => addToList(setThumbnailUrls)}
-          >
+          <Button type="button" variant="outline" size="sm" onClick={addThumbnail}>
             <Image className="w-4 h-4 mr-2" />
             Add Thumbnail
           </Button>
@@ -691,19 +717,17 @@ const ComponentsBuilder = ({
             <div key={idx} className="flex gap-2">
               <Input
                 value={url}
-                onChange={(e) => updateInList(setThumbnailUrls, idx, e.target.value)}
+                onChange={(e) => updateThumbnailUrl(idx, e.target.value)}
                 placeholder="Thumbnail URL"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removeFromList(setThumbnailUrls, idx)}
-              >
+              <Button type="button" variant="ghost" size="sm" onClick={() => removeThumbnailUrl(idx)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
           ))}
+          {thumbnailUrls.length === 0 && (
+            <p className="text-sm text-muted-foreground">No thumbnails added yet</p>
+          )}
         </div>
       </Card>
 
@@ -711,12 +735,7 @@ const ComponentsBuilder = ({
       <Card className="p-4 bg-muted/30">
         <div className="flex items-center justify-between mb-4">
           <Label className="text-lg font-semibold">File Attachments</Label>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addFileComponents}
-          >
+          <Button type="button" variant="outline" size="sm" onClick={addFileComponents}>
             <FileIcon className="w-4 h-4 mr-2" />
             Add File
           </Button>
@@ -726,19 +745,17 @@ const ComponentsBuilder = ({
             <div key={idx} className="flex gap-2">
               <Input
                 value={url}
-                onChange={(e) => updateInList(setAttachments, idx, e.target.value)}
+                onChange={(e) => updateAttachment(idx, e.target.value)}
                 placeholder="File URL"
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removeFromList(setAttachments, idx)}
-              >
+              <Button type="button" variant="ghost" size="sm" onClick={() => removeAttachment(idx)}>
                 <X className="w-4 h-4" />
               </Button>
             </div>
           ))}
+          {attachments.length === 0 && (
+            <p className="text-sm text-muted-foreground">No files added yet</p>
+          )}
         </div>
       </Card>
 
@@ -751,7 +768,7 @@ const ComponentsBuilder = ({
               type="color"
               value={accentColor || "#5865F2"}
               onChange={(e) => setAccentColor(e.target.value)}
-              className="w-20"
+              className="w-20 h-10 p-1 cursor-pointer"
             />
             <Input
               value={accentColor}
@@ -760,12 +777,7 @@ const ComponentsBuilder = ({
               className="flex-1"
             />
             {accentColor && (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={clearAccentColor}
-              >
+              <Button type="button" variant="outline" size="sm" onClick={clearAccentColor}>
                 Clear
               </Button>
             )}
@@ -775,14 +787,8 @@ const ComponentsBuilder = ({
 
       {/* Export JSON */}
       <div className="flex justify-center">
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => {
-            const json = toJSON();
-            navigator.clipboard.writeText(json);
-          }}
-        >
+        <Button type="button" variant="secondary" onClick={copyJSON}>
+          <Copy className="w-4 h-4 mr-2" />
           Copy JSON
         </Button>
       </div>
